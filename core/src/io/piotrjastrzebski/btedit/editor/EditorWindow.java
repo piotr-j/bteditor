@@ -1,18 +1,39 @@
 package io.piotrjastrzebski.btedit.editor;
 
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.kotcrab.vis.ui.widget.VisWindow;
+import com.kotcrab.vis.ui.widget.*;
 
 /**
  * Created by EvilEntity on 03/10/2015.
  */
 public class EditorWindow extends VisWindow implements Disposable {
+	MenuBar menuBar;
+
+	VisTable root;
 	public EditorWindow () {
 		super("BTEdit");
 		addCloseButton();
+		setResizable(true);
+		setSize(500, 500);
 
+		add(createMenus()).fillX().expandX();
+		row();
+		add(root = new VisTable(true)).fill().expand();
+
+	}
+
+	private Table createMenus () {
+		menuBar = new MenuBar();
+		Menu mainMenu = new Menu("Main");
+		mainMenu.addItem(new MenuItem("Item A"));
+		mainMenu.addItem(new MenuItem("Item B"));
+		mainMenu.addSeparator();
+		mainMenu.addItem(new MenuItem("Item C"));
+
+		return menuBar.getTable();
 	}
 
 	protected Array<EditorListener> listeners = new Array<EditorListener>();
