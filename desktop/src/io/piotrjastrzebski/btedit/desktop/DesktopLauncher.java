@@ -10,6 +10,7 @@ public class DesktopLauncher {
 		config.width = 1280;
 		config.height = 720;
 		config.useHDPI = true;
-		new LwjglApplication(new BTEdit(), config);
+		DesktopBridge bridge = new DesktopBridge();
+		new LwjglApplication(new BTEdit(bridge), config);
 	}
 }
