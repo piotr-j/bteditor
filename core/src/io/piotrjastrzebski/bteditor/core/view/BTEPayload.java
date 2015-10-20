@@ -11,20 +11,6 @@ import com.badlogic.gdx.utils.Pools;
  * Created by PiotrJ on 12/10/15.
  */
 public class BTEPayload extends DragAndDrop.Payload implements Pool.Poolable {
-	private static final Pool<BTEPayload> PAYLOAD_POOL = Pools.get(BTEPayload.class);
-
-	protected static BTEPayload obtain () {
-		return PAYLOAD_POOL.obtain();
-	}
-
-	protected static void free (BTEPayload payload) {
-		PAYLOAD_POOL.free(payload);
-	}
-
-	protected static void clear () {
-		PAYLOAD_POOL.clear();
-	}
-
 	public static final int TARGET_TRASH = 1;
 	public static final int TARGET_ADD = 1 << 1;
 	public static final int TARGET_MOVE = 1 << 2;

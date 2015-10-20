@@ -35,7 +35,7 @@ public class ViewTask<E> extends Tree.Node implements Pool.Poolable {
 	protected Skin skin;
 
 	public ViewTask (final ViewTree<E> owner, Skin skin, Drawable bg) {
-		super(new Table());
+		super(new Table(skin));
 		this.skin = skin;
 		this.owner = owner;
 		// object is used to find this node in tree
@@ -49,11 +49,10 @@ public class ViewTask<E> extends Tree.Node implements Pool.Poolable {
 		container.add(status);
 		// dad prefers touchable things, we want entire node to be a valid target
 		container.setTouchable(Touchable.enabled);
-//		containerBG = VisUI.getSkin().getDrawable("white");
 		containerBG = bg;
 		container.setColor(Color.GREEN);
 
-		source = new BTESource(getActor()) {
+		source = new BTESource(getActor(), owner.getPayloadPool()) {
 			@Override public BTEPayload dragStart (InputEvent event, float x, float y, int pointer, BTEPayload out) {
 				out.setAsMove(ViewTask.this);
 				return out;

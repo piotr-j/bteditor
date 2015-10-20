@@ -3,17 +3,21 @@ package io.piotrjastrzebski.bteditor.core.view;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
+import com.badlogic.gdx.utils.Pool;
 
 /**
  * Created by PiotrJ on 12/10/15.
  */
 public abstract class BTESource extends DragAndDrop.Source {
-	public BTESource (Actor actor) {
+	private Pool<BTEPayload> pool;
+
+	public BTESource (Actor actor, Pool<BTEPayload> pool) {
 		super(actor);
+		this.pool = pool;
 	}
 
 	@Override final public DragAndDrop.Payload dragStart (InputEvent event, float x, float y, int pointer) {
-		BTEPayload payload = BTEPayload.obtain();
+		BTEPayload payload = pool.obtain();
 		return dragStart(event, x, y, pointer, payload);
 	}
 
@@ -24,7 +28,7 @@ public abstract class BTESource extends DragAndDrop.Source {
 		BTEPayload p = (BTEPayload)payload;
 		BTETarget t = (BTETarget)target;
 		onDragStop(event, x, y, pointer, p, t);
-		BTEPayload.free(p);
+		pool.free(p);
 	}
 
 	public void onDragStop (InputEvent event, float x, float y, int pointer, BTEPayload payload, BTETarget target) {

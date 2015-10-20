@@ -31,6 +31,7 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 
 	protected DragAndDrop dad;
 	private Actor separator;
+	private Pool<BTEPayload> payloadPool;
 
 	public ViewTree (Skin skin, Drawable white) {
 		this(skin, white, 1);
@@ -45,6 +46,12 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 		this.separator.setHeight(4 * scale);
 		this.separator.setVisible(false);
 		addActor(separator);
+
+		payloadPool = new Pool<BTEPayload>() {
+			@Override protected BTEPayload newObject () {
+				return new BTEPayload(skin);
+			}
+		};
 
 		dad = new DragAndDrop();
 		vtPool = new Pool<ViewTask<E>>() {
@@ -146,7 +153,7 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 			Gdx.app.error(TAG, "Failed to instantience task " + task, e);
 			return;
 		}
-		dad.addSource(new BTESource(source) {
+		dad.addSource(new BTESource(source, getPayloadPool()) {
 			@Override public BTEPayload dragStart (InputEvent event, float x, float y, int pointer, BTEPayload out) {
 				// TODO should this create a node for this already?
 				BTTask<E> mt = model.obtain();
@@ -279,6 +286,10 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 			if (found != null) return found;
  		}
 		return null;
+	}
+
+	public Pool<BTEPayload> getPayloadPool () {
+		return payloadPool;
 	}
 
 	public interface ViewTaskSelectedListener<E> {
