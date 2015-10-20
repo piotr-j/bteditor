@@ -1,4 +1,4 @@
-package io.piotrjastrzebski.btedit;
+package io.piotrjastrzebski.bteditor.core;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -27,7 +27,8 @@ public class BTEdit extends Game {
 		batch = new SpriteBatch();
 		renderer = new ShapeRenderer();
 
-		setScreen(new EditorScreen(this));
+//		setScreen(new EditorScreen(this));
+		setScreen(new BTEditTest(this));
 	}
 
 	@Override public void dispose () {

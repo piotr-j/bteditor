@@ -19,23 +19,15 @@ allprojects {
         box2DLightsVersion = '1.4'
         ashleyVersion = '1.6.0'
         aiVersion = '1.6.1-SNAPSHOT'
+        visUiVersion = '0.8.1'
+        jUnitVersion = '4.12'
+        mockitoVersion = '1.+'
     }
 
     repositories {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
-    }
-}
-
-project(":desktop") {
-    apply plugin: "java"
-
-
-    dependencies {
-        compile project(":core")
-        compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     }
 }
 
@@ -46,7 +38,12 @@ project(":core") {
     dependencies {
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
-        compile "com.kotcrab.vis:vis-ui:0.8.1"
+
+        testCompile "com.kotcrab.vis:vis-ui:$visUiVersion"
+        testCompile "junit:junit:$jUnitVersion"
+        testCompile "org.mockito:mockito-core:$mockitoVersion"
+        testCompile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+        testCompile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     }
 }
 

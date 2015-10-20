@@ -1,4 +1,4 @@
-package io.piotrjastrzebski.btedit;
+package io.piotrjastrzebski.bteditor.core;
 
 /**
  * Created by PiotrJ on 04/08/15.

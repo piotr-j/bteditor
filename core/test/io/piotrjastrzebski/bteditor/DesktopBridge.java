@@ -1,6 +1,6 @@
-package io.piotrjastrzebski.btedit.desktop;
+package io.piotrjastrzebski.bteditor;
 
-import io.piotrjastrzebski.btedit.PlatformBridge;
+import io.piotrjastrzebski.bteditor.core.PlatformBridge;
 import org.lwjgl.opengl.Display;
 
 /**
