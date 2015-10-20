@@ -9,7 +9,10 @@ import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.branch.Parallel;
 import com.badlogic.gdx.ai.btree.branch.Selector;
 import com.badlogic.gdx.ai.btree.branch.Sequence;
-import com.badlogic.gdx.ai.btree.decorator.AlwaysFail;
+import com.badlogic.gdx.ai.btree.decorator.*;
+import com.badlogic.gdx.ai.btree.leaf.Failure;
+import com.badlogic.gdx.ai.btree.leaf.Success;
+import com.badlogic.gdx.ai.btree.leaf.Wait;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.graphics.GL20;
@@ -47,6 +50,7 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor {
 			VisUI.load(VisUI.SkinScale.X1);
 		}
 		Skin skin = VisUI.getSkin();
+
 		batch = new SpriteBatch();
 		viewport = new ScreenViewport(new OrthographicCamera());
 
@@ -55,6 +59,8 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor {
 
 		Window editorWindow = new Window("Editor", skin);
 		stage.addActor(editorWindow);
+		editorWindow.setSize(600, 550);
+		editorWindow.setResizable(true);
 		editorWindow.setPosition(
 			stage.getWidth()/2 - editorWindow.getWidth()/2,
 			stage.getHeight()/2 - editorWindow.getHeight()/2
@@ -65,6 +71,29 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor {
 
 		editor = new BehaviourTreeEditor<>(skin, skin.getDrawable("white"));
 		editorWindow.add(editor).expand().fill();
+
+		editor.initialize(tree);
+		editor.addTaskClass(Sequence.class);
+		editor.addTaskClass(Selector.class);
+		editor.addTaskClass(Parallel.class);
+		editor.addTaskClass(AlwaysFail.class);
+		editor.addTaskClass(AlwaysSucceed.class);
+//		editor.addTaskClass(Include.class);
+		editor.addTaskClass(Invert.class);
+//		editor.addTaskClass(Random.class);
+		editor.addTaskClass(Repeat.class);
+		editor.addTaskClass(SemaphoreGuard.class);
+		editor.addTaskClass(UntilFail.class);
+		editor.addTaskClass(UntilSuccess.class);
+		editor.addTaskClass(Wait.class);
+		editor.addTaskClass(Success.class);
+		editor.addTaskClass(Failure.class);
+
+		editor.addTaskClass(BarkTask.class);
+		editor.addTaskClass(CareTask.class);
+		editor.addTaskClass(MarkTask.class);
+		editor.addTaskClass(RestTask.class);
+		editor.addTaskClass(WalkTask.class);
 	}
 
 	@Override public void render () {
