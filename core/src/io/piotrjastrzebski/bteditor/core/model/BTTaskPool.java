@@ -1,6 +1,5 @@
 package io.piotrjastrzebski.bteditor.core.model;
 
-
 /**
  * Created by PiotrJ on 15/10/15.
  */

@@ -5,7 +5,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Pool;
-import com.badlogic.gdx.utils.Pools;
 
 /**
  * Created by PiotrJ on 12/10/15.
@@ -37,7 +36,7 @@ public class BTEPayload extends DragAndDrop.Payload implements Pool.Poolable {
 		invalid.setText(text);
 	}
 
-	public BTEPayload addTarget(int target) {
+	public BTEPayload addTarget (int target) {
 		targetMask |= target;
 		return this;
 	}
@@ -59,6 +58,7 @@ public class BTEPayload extends DragAndDrop.Payload implements Pool.Poolable {
 	}
 
 	protected ViewTask vt;
+
 	public void setAsMove (ViewTask task) {
 		vt = task;
 		setDragText(task.getModelTask().getName());

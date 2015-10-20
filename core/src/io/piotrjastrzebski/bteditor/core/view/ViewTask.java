@@ -106,6 +106,7 @@ public class ViewTask<E> extends Tree.Node implements Pool.Poolable {
 	}
 
 	public static final float DROP_MARGIN = 0.25f;
+
 	private DropPoint getDropPoint (Actor actor, float y) {
 		float a = y / actor.getHeight();
 		if (a < DROP_MARGIN) {
@@ -123,6 +124,7 @@ public class ViewTask<E> extends Tree.Node implements Pool.Poolable {
 	}
 
 	protected float fadeTime = 1.5f;
+
 	protected void statusChanged (Task.Status from, Task.Status to) {
 		status.setText(to.toString());
 		status.setColor(getColor(to));
@@ -139,9 +141,10 @@ public class ViewTask<E> extends Tree.Node implements Pool.Poolable {
 		}
 	}
 
-	protected int getIndexInParent() {
+	protected int getIndexInParent () {
 		Tree.Node parent = getParent();
-		if (parent == null) return 0;
+		if (parent == null)
+			return 0;
 		return parent.getChildren().indexOf(this, true);
 	}
 
@@ -150,7 +153,8 @@ public class ViewTask<E> extends Tree.Node implements Pool.Poolable {
 	}
 
 	private static Color getColor (Task.Status status) {
-		if (status == null) return Color.GRAY;
+		if (status == null)
+			return Color.GRAY;
 		switch (status) {
 		case SUCCEEDED:
 			return Color.GREEN;
@@ -169,7 +173,7 @@ public class ViewTask<E> extends Tree.Node implements Pool.Poolable {
 	private static void updateSeparator (DropPoint dropPoint, boolean isValid, Actor sep, Table cont) {
 		sep.setVisible(false);
 		cont.setBackground((Drawable)null);
-		Color color = isValid? Color.GREEN : Color.RED;
+		Color color = isValid ? Color.GREEN : Color.RED;
 		sep.setColor(color);
 		cont.setColor(color);
 		// if dp is null we just hide the separator

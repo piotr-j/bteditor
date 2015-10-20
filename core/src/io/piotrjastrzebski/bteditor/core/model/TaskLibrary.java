@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.reflect.ReflectionException;
 
 /**
  * Maps Task class to archetype, used by model to get new instances of tasks to add them to the tree
+ *
  * @param <E> type of the blackboard object in the task, same as in the model
  */
 public class TaskLibrary<E> {
@@ -29,7 +30,7 @@ public class TaskLibrary<E> {
 			Task<E> task = ClassReflection.newInstance(aClass);
 			classToInstance.put(aClass, task);
 		} catch (ReflectionException e) {
-			Gdx.app.error(TAG, "Failed to create task of type " + aClass , e);
+			Gdx.app.error(TAG, "Failed to create task of type " + aClass, e);
 		}
 	}
 

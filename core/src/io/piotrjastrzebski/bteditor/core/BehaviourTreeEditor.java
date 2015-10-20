@@ -13,9 +13,9 @@ import io.piotrjastrzebski.bteditor.core.view.ViewTree;
 
 /**
  * Main entry point for the editor
- *
+ * <p>
  * E - type of blackboard in the tree
- *
+ * <p>
  * Created by PiotrJ on 20/06/15.
  */
 public class BehaviourTreeEditor<E> extends Table {
@@ -69,6 +69,7 @@ public class BehaviourTreeEditor<E> extends Table {
 
 	private float delay = 1;
 	private float timer;
+
 	@Override public void act (float delta) {
 		super.act(delta);
 		timer += delta;
@@ -78,7 +79,7 @@ public class BehaviourTreeEditor<E> extends Table {
 		}
 	}
 
-	public void setStepDelay(float delay) {
+	public void setStepDelay (float delay) {
 		this.delay = delay;
 	}
 

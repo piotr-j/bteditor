@@ -40,7 +40,8 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor {
 	private BehaviorTree<Dog> tree;
 	private BehaviourTreeEditor<Dog> editor;
 
-	public EditorTest () {}
+	public EditorTest () {
+	}
 
 	@Override public void create () {
 		boolean highRes = Math.max(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()) > 1980;
@@ -61,10 +62,8 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor {
 		stage.addActor(editorWindow);
 		editorWindow.setSize(600, 550);
 		editorWindow.setResizable(true);
-		editorWindow.setPosition(
-			stage.getWidth()/2 - editorWindow.getWidth()/2,
-			stage.getHeight()/2 - editorWindow.getHeight()/2
-		);
+		editorWindow
+			.setPosition(stage.getWidth() / 2 - editorWindow.getWidth() / 2, stage.getHeight() / 2 - editorWindow.getHeight() / 2);
 
 		tree = new BehaviorTree<>(createDogBehavior());
 		tree.setObject(new Dog("Dog A"));

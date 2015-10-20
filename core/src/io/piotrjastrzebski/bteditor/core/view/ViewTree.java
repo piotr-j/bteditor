@@ -16,7 +16,6 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
-
 import io.piotrjastrzebski.bteditor.core.model.BTModel;
 import io.piotrjastrzebski.bteditor.core.model.BTModelListener;
 import io.piotrjastrzebski.bteditor.core.model.BTTask;
@@ -69,7 +68,8 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 	}
 
 	public void update (float delta) {
-		if (viewRoot == null) return;
+		if (viewRoot == null)
+			return;
 		viewRoot.update(delta);
 	}
 
@@ -86,8 +86,10 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 	}
 
 	ViewTask<E> viewRoot;
+
 	public void init (BTModel<E> model) {
-		if (this.model != null) reset();
+		if (this.model != null)
+			reset();
 		this.model = model;
 		model.addListener(this);
 		BTTask<E> root = model.getRootNode();
@@ -112,7 +114,7 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 		return out;
 	}
 
-	protected void freeVT(ViewTask<E> vt) {
+	protected void freeVT (ViewTask<E> vt) {
 		vtPool.free(vt);
 	}
 
@@ -129,13 +131,14 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 	}
 
 	protected Array<ViewTaskSelectedListener<E>> listeners = new Array<>();
-	public void addListener(ViewTaskSelectedListener<E> listener) {
+
+	public void addListener (ViewTaskSelectedListener<E> listener) {
 		if (!listeners.contains(listener, true)) {
 			listeners.add(listener);
 		}
 	}
 
-	public void removeListener(ViewTaskSelectedListener<E> listener) {
+	public void removeListener (ViewTaskSelectedListener<E> listener) {
 		listeners.removeValue(listener, true);
 	}
 
@@ -206,8 +209,7 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 		// we cant add to own children, thats about it
 		// some thing might result in broken tree, but it will be indicated
 		// TODO add check add mt mt to model?
-		if (!model.checkAdd(target.getModelTask(), vt.getModelTask().getTask())
-			&& to.equals(DropPoint.MIDDLE)) {
+		if (!model.checkAdd(target.getModelTask(), vt.getModelTask().getTask()) && to.equals(DropPoint.MIDDLE)) {
 			return false;
 		}
 		return vt.findNode(target) == null;
@@ -216,7 +218,7 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 	/**
 	 * Add new node to target at dp
 	 */
-	public void addTo(ViewTask<E> vt, ViewTask<E> target, DropPoint to) {
+	public void addTo (ViewTask<E> vt, ViewTask<E> target, DropPoint to) {
 		// TODO do we want to double check?
 		if (!canAddTo(vt, target, to)) {
 			Gdx.app.log(TAG, target + " cant be added to " + vt + " at " + to);
@@ -280,15 +282,16 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 		vt.validChanged(isValid);
 	}
 
-	private ViewTask<E> find(ViewTask<E> parent, BTTask<E> task) {
+	private ViewTask<E> find (ViewTask<E> parent, BTTask<E> task) {
 		// do we want ref only here?
 		if (parent.getModelTask() == task) {
 			return parent;
 		}
 		for (Tree.Node node : parent.getChildren()) {
 			ViewTask<E> found = find((ViewTask<E>)node, task);
-			if (found != null) return found;
- 		}
+			if (found != null)
+				return found;
+		}
 		return null;
 	}
 
@@ -298,6 +301,7 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 
 	public interface ViewTaskSelectedListener<E> {
 		void selected (ViewTask<E> task);
+
 		void deselected ();
 	}
 }

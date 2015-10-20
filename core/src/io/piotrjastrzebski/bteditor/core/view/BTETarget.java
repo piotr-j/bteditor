@@ -12,7 +12,6 @@ public abstract class BTETarget extends DragAndDrop.Target {
 		super(actor);
 	}
 
-
 	@Override final public boolean drag (DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
 		BTESource s = (BTESource)source;
 		BTEPayload p = (BTEPayload)payload;
@@ -35,5 +34,6 @@ public abstract class BTETarget extends DragAndDrop.Target {
 		onReset(s, p);
 	}
 
-	public void onReset (BTESource source, BTEPayload payload) {}
+	public void onReset (BTESource source, BTEPayload payload) {
+	}
 }

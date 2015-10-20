@@ -36,20 +36,17 @@ public class TaskActionTest {
 		remove = new TaskAction.Remove();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testNullTask () throws Exception {
+	@Test(expected = IllegalArgumentException.class) public void testNullTask () throws Exception {
 		add.init(selector, null);
 		fail();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testNullTarget () throws Exception {
+	@Test(expected = IllegalArgumentException.class) public void testNullTarget () throws Exception {
 		add.init(null, bark);
 		fail();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testNullBoth () throws Exception {
+	@Test(expected = IllegalArgumentException.class) public void testNullBoth () throws Exception {
 		add.init(null, null);
 		fail();
 	}
@@ -165,7 +162,6 @@ public class TaskActionTest {
 		selector.addChild(care);
 		assertEquals(2, selector.getChildCount());
 
-
 		boolean execute = insert.init(selector, bark, 3).execute();
 		assertFalse(execute);
 		assertEquals(2, selector.getChildCount());
@@ -198,7 +194,6 @@ public class TaskActionTest {
 		assertFalse(execute);
 		assertEquals(care, alwaysFail.getChild(0));
 	}
-
 
 	@Test public void testInsertDecoratorNotEmpty () throws Exception {
 		alwaysFail.addChild(care);

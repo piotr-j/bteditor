@@ -18,20 +18,23 @@ abstract class TaskAction implements Pool.Poolable {
 	protected Task task;
 	protected Task target;
 
-	public static void setLogger(Logger logger) {
+	public static void setLogger (Logger logger) {
 		TaskAction.logger = logger;
 	}
 
-	private static void log(String tag, String msg) {
-		if (logger != null) logger.log(tag, msg);
+	private static void log (String tag, String msg) {
+		if (logger != null)
+			logger.log(tag, msg);
 	}
 
-	private static void error(String tag, String msg) {
-		if (logger != null) logger.error(tag, msg);
+	private static void error (String tag, String msg) {
+		if (logger != null)
+			logger.error(tag, msg);
 	}
 
-	private static void error(String tag, String msg, Exception e) {
-		if (logger != null) logger.error(tag, msg, e);
+	private static void error (String tag, String msg, Exception e) {
+		if (logger != null)
+			logger.error(tag, msg, e);
 	}
 
 	public TaskAction init (Task target, Task task) {

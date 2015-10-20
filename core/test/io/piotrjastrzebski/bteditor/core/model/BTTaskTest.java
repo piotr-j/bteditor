@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
  * init
  * reset
  * reset on init
- *
+ * <p>
  * Created by PiotrJ on 15/10/15.
  */
 public class BTTaskTest {
@@ -355,7 +355,6 @@ public class BTTaskTest {
 		assertTrue(root.isValid());
 		assertFalse(root.isDirty());
 	}
-
 
 	@Test public void reset () {
 		selector.addChild(care);

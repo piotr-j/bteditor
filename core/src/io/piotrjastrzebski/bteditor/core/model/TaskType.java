@@ -5,7 +5,6 @@ import com.badlogic.gdx.ai.btree.Decorator;
 import com.badlogic.gdx.ai.btree.Task;
 
 /**
- *
  * Created by EvilEntity on 14/10/2015.
  */
 public enum TaskType {
@@ -25,6 +24,7 @@ public enum TaskType {
 
 	/**
 	 * Check if this count is a valid for this {@link TaskType}
+	 *
 	 * @param count count to check
 	 * @return if count is within min and max
 	 */

@@ -7,5 +7,6 @@ import com.badlogic.gdx.ai.btree.Task;
  */
 public interface BTModelListener<E> {
 	void statusChanged (BTTask<E> task, Task.Status from, Task.Status to);
+
 	void validityChanged (BTTask<E> task, boolean isValid);
 }

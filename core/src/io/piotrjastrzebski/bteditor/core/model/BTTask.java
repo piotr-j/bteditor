@@ -67,8 +67,7 @@ public class BTTask<E> implements Pool.Poolable {
 		return removeChild(getChild(i));
 	}
 
-	public BTTask<E> removeChild (
-		BTTask<E> child) {
+	public BTTask<E> removeChild (BTTask<E> child) {
 		pending.add(TaskAction.remove(task, child.getTask()));
 		children.removeValue(child, true);
 		child.parent = null;
@@ -92,7 +91,8 @@ public class BTTask<E> implements Pool.Poolable {
 		if (isValid != newValid) {
 			isValid = newValid;
 			// notify that valid status changed
-			if (changeListener != null) changeListener.validChanged(this, isValid);
+			if (changeListener != null)
+				changeListener.validChanged(this, isValid);
 		}
 	}
 
@@ -121,16 +121,19 @@ public class BTTask<E> implements Pool.Poolable {
 	}
 
 	protected BTTask<E> find (Task<E> target) {
-		if (task == target) return this;
+		if (task == target)
+			return this;
 		for (BTTask<E> child : children) {
 			BTTask<E> found = child.find(target);
-			if (found != null) return found;
+			if (found != null)
+				return found;
 		}
 		return null;
 	}
 
 	public int getIndexInParent () {
-		if (parent == null) return -1;
+		if (parent == null)
+			return -1;
 		for (int i = 0; i < parent.getChildCount(); i++) {
 			if (parent.getChild(i) == this) {
 				return i;
@@ -169,7 +172,6 @@ public class BTTask<E> implements Pool.Poolable {
 		return task.getClass().getSimpleName();
 	}
 
-
 	public Task<E> getTask () {
 		return task;
 	}
@@ -194,7 +196,7 @@ public class BTTask<E> implements Pool.Poolable {
 		return parent;
 	}
 
-	protected void setChangeListener(ValidChangeListener<E> listener) {
+	protected void setChangeListener (ValidChangeListener<E> listener) {
 		this.changeListener = listener;
 	}
 

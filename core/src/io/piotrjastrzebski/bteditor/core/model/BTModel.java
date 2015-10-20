@@ -1,6 +1,5 @@
 package io.piotrjastrzebski.bteditor.core.model;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.utils.Array;
@@ -8,17 +7,17 @@ import com.badlogic.gdx.utils.Pool;
 
 /**
  * Model that represents {@link BehaviorTree} so it can be edited
- *
+ * <p>
  * Stuff we want to do:
  * modify the tree
- *  - remove any node
- *  - move any node to a another valid node, ie not inside own children
- *  - add new node at specified place
+ * - remove any node
+ * - move any node to a another valid node, ie not inside own children
+ * - add new node at specified place
  * validate the tree, node child count must be valid before the tree is running
  * if model is valid, update the underlying {@link BehaviorTree}
  * notify observers that node status changed, valid, position in tree, removed etc
  * edit params of {@link Task}s
- *
+ * <p>
  * Created by EvilEntity on 14/10/2015.
  */
 public class BTModel<E> implements Pool.Poolable, BTTaskPool<E>, BehaviorTree.Listener<E>, BTTask.ValidChangeListener<E> {
@@ -34,14 +33,16 @@ public class BTModel<E> implements Pool.Poolable, BTTaskPool<E>, BehaviorTree.Li
 		taskLibrary = new TaskLibrary<>();
 	}
 
-	public void init(BehaviorTree<E> bt) {
-		if (this.bt != null) reset();
+	public void init (BehaviorTree<E> bt) {
+		if (this.bt != null)
+			reset();
 		this.bt = bt;
 		// TODO pool all the things
 		root = obtain();
 		root.init(bt.getChild(0));
 		valid = root.isValid();
-		if (valid) root.executePending();
+		if (valid)
+			root.executePending();
 		bt.addListener(this);
 	}
 
@@ -58,11 +59,11 @@ public class BTModel<E> implements Pool.Poolable, BTTaskPool<E>, BehaviorTree.Li
 		bt.step();
 	}
 
-	public boolean checkAdd(BTTask<E> target, Task<E> task) {
+	public boolean checkAdd (BTTask<E> target, Task<E> task) {
 		return checkAdd(target, task.getClass());
 	}
 
-	public boolean checkAdd(BTTask<E> target, Class<? extends Task> task) {
+	public boolean checkAdd (BTTask<E> target, Class<? extends Task> task) {
 		// we allow adding if target is not a Leaf
 		return !TaskType.LEAF.equals(target.getType());
 	}
@@ -76,12 +77,11 @@ public class BTModel<E> implements Pool.Poolable, BTTaskPool<E>, BehaviorTree.Li
 		return add(target, eTask);
 	}
 
-
 	public BTTask<E> add (BTTask<E> target, Task<E> task) {
 		BTTask<E> node = obtain();
 		node.init(task);
 		return add(target, node);
- 	}
+	}
 
 	public BTTask<E> add (BTTask<E> target, BTTask<E> task) {
 		if (!checkAdd(target, task.getTask())) {
@@ -94,11 +94,11 @@ public class BTModel<E> implements Pool.Poolable, BTTaskPool<E>, BehaviorTree.Li
 		return task;
 	}
 
-	public boolean checkInsert(BTTask<E> target, Task<E> task, int at) {
+	public boolean checkInsert (BTTask<E> target, Task<E> task, int at) {
 		return checkInsert(target, task.getClass(), at);
 	}
 
-	public boolean checkInsert(BTTask<E> target, Class<? extends Task> task, int at) {
+	public boolean checkInsert (BTTask<E> target, Class<? extends Task> task, int at) {
 		// we allow inserting if target is not a Leaf
 		return !TaskType.LEAF.equals(target.getType());
 	}
@@ -125,7 +125,7 @@ public class BTModel<E> implements Pool.Poolable, BTTaskPool<E>, BehaviorTree.Li
 		}
 		target.insertChild(at, task);
 		task.
-		validate();
+			validate();
 		dirty = true;
 		return task;
 	}
@@ -160,15 +160,13 @@ public class BTModel<E> implements Pool.Poolable, BTTaskPool<E>, BehaviorTree.Li
 		return root.find(target);
 	}
 
-	@Override
-	public BTTask<E> obtain () {
+	@Override public BTTask<E> obtain () {
 		BTTask<E> ebtTask = new BTTask<>(this);
 		ebtTask.setChangeListener(this);
 		return ebtTask;
 	}
 
-	@Override
-	public void free (BTTask<E> task) {
+	@Override public void free (BTTask<E> task) {
 		task.reset();
 	}
 
@@ -190,16 +188,16 @@ public class BTModel<E> implements Pool.Poolable, BTTaskPool<E>, BehaviorTree.Li
 	}
 
 	Array<BTModelListener<E>> listeners = new Array<>();
-	public void addListener(BTModelListener<E> listener) {
+
+	public void addListener (BTModelListener<E> listener) {
 		if (!listeners.contains(listener, true)) {
 			listeners.add(listener);
 		}
 	}
 
-	public void removeListener(BTModelListener<E> listener) {
+	public void removeListener (BTModelListener<E> listener) {
 		listeners.removeValue(listener, true);
 	}
-
 
 	@Override public void statusUpdated (Task<E> task, Task.Status previousStatus) {
 		BTTask<E> btTask = findBTTask(task);
@@ -222,9 +220,9 @@ public class BTModel<E> implements Pool.Poolable, BTTaskPool<E>, BehaviorTree.Li
 		}
 	}
 
-
 	@Override public void reset () {
-		if (root != null) root.reset();
+		if (root != null)
+			root.reset();
 		root = null;
 		valid = false;
 		if (bt != null) {
