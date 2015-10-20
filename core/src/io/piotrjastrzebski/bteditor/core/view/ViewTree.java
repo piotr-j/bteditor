@@ -122,6 +122,10 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 		}
 		model = null;
 		listeners.clear();
+		// TODO fix pooling for vts
+		remove(viewRoot);
+		freeVT(viewRoot);
+		vtPool.clear();
 	}
 
 	protected Array<ViewTaskSelectedListener<E>> listeners = new Array<>();
