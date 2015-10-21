@@ -1,10 +1,7 @@
 package io.piotrjastrzebski.bteditor.core.view;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.annotation.TaskAttribute;
-import com.badlogic.gdx.ai.utils.random.Distribution;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
