@@ -38,12 +38,17 @@ public class AttrEdit extends Table {
 	private void addTaskAttributes (Task task) {
 		Class<?> aClass = task.getClass();
 		Field[] fields = ClassReflection.getFields(aClass);
+		int added = 0;
 		for (Field f : fields) {
 			Annotation a = f.getDeclaredAnnotation(TaskAttribute.class);
 			if (a == null)
 				continue;
 			TaskAttribute annotation = a.getAnnotation(TaskAttribute.class);
 			addField(task, annotation, f);
+			added++;
+		}
+		if (added == 0) {
+			add(new Label("No TaskAttributes", skin));
 		}
 	}
 
