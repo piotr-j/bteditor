@@ -9,6 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.badlogic.gdx.utils.reflect.Constructor;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 
@@ -24,129 +26,121 @@ public class AttrFieldEdit {
 		}
 	};
 
-	protected static Actor createEditField (final Object object, final Field field, Skin skin) throws ReflectionException {
+	protected static Actor createEditField (final Object object, final Field field, boolean required, Skin skin) throws ReflectionException {
 		Class fType = field.getType();
 		if (fType == float.class) {
-			return AttrFieldEdit.floatEditField(object, field, skin);
+			return AttrFieldEdit.floatEditField(object, field, required, skin);
+		} else if (fType == double.class) {
+			return AttrFieldEdit.doubleEditField(object, field, required, skin);
 		} else if (fType == int.class) {
-			return AttrFieldEdit.integerEditField(object, field, skin);
+			return AttrFieldEdit.integerEditField(object, field, required, skin);
+		} else if (fType == long.class) {
+			return AttrFieldEdit.longEditField(object, field, required, skin);
 		} else if (fType == String.class) {
-			return AttrFieldEdit.stringEditField(object, field, skin);
+			return AttrFieldEdit.stringEditField(object, field, required, skin);
 		} else if (fType == boolean.class) {
-			return AttrFieldEdit.booleanEditField(object, field, skin);
+			return AttrFieldEdit.booleanEditField(object, field, required, skin);
 		} else if (fType.isEnum()) {
-			return AttrFieldEdit.enumEditField(object, field, skin);
+			return AttrFieldEdit.enumEditField(object, field, required, skin);
 		} if (Distribution.class.isAssignableFrom(fType)) {
-			return AttrFieldEdit.distEditField(object, field, skin);
+			return AttrFieldEdit.distEditField(object, field, required, skin);
 		} else {
 			Gdx.app.error(TAG, "Not supported field type " + fType + " in " + object);
 			return null;
 		}
 	}
 
-	protected static Actor integerEditField (final Object object, final Field field, Skin skin) throws ReflectionException {
-		int value = (int)field.get(object);
-		final TextField vtf = new TextField("", skin);
-		vtf.setText(Integer.toString(value));
-		vtf.setTextFieldFilter(digitFieldFilter);
-		vtf.setTextFieldListener(new TextField.TextFieldListener() {
-			@Override public void keyTyped (TextField textField, char c) {
-				String text = vtf.getText();
-				if (validateInt(text)) {
-					vtf.setColor(Color.WHITE);
-					try {
-						field.set(object, Integer.valueOf(text));
-					} catch (ReflectionException e) {
-						Gdx.app.error("Integer validator", "Failed to set field " + field + " to " + vtf.getText(), e);
-					}
-				} else {
-					vtf.setColor(Color.RED);
+	protected static Actor integerEditField (final Object object, final Field field, final boolean required, Skin skin) throws ReflectionException {
+		return valueEditField(skin, new IntField() {
+			@Override public int getInt () {
+				try {
+					return (int)field.get(object);
+				} catch (ReflectionException e) {
+					e.printStackTrace();
+				}
+				return 0;
+			}
+
+			@Override public void setInt (int val) {
+				try {
+					field.set(object, val);
+				} catch (ReflectionException e) {
+					Gdx.app.error("Float validator", "Failed to set field " + field + " to " + val, e);
 				}
 			}
 		});
-		addCancelOnESC(vtf);
-		return vtf;
 	}
 
-	protected static Actor longEditField (final Object object, final Field field, Skin skin) throws ReflectionException {
-		int value = (int)field.get(object);
-		final TextField vtf = new TextField("", skin);
-		vtf.setText(Integer.toString(value));
-		vtf.setTextFieldFilter(digitFieldFilter);
-		vtf.setTextFieldListener(new TextField.TextFieldListener() {
-			@Override public void keyTyped (TextField textField, char c) {
-				String text = vtf.getText();
-				if (validateLong(text)) {
-					vtf.setColor(Color.WHITE);
-					try {
-						field.set(object, Long.valueOf(text));
-					} catch (ReflectionException e) {
-						Gdx.app.error("Integer validator", "Failed to set field " + field + " to " + vtf.getText(), e);
-					}
-				} else {
-					vtf.setColor(Color.RED);
+	protected static Actor longEditField (final Object object, final Field field, final boolean required, Skin skin) throws ReflectionException {
+		return valueEditField(skin, new LongField() {
+			@Override public long getLong () {
+				try {
+					return (long)field.get(object);
+				} catch (ReflectionException e) {
+					e.printStackTrace();
+				}
+				return 0;
+			}
+
+			@Override public void setLong (long val) {
+				try {
+					field.set(object, val);
+				} catch (ReflectionException e) {
+					Gdx.app.error("Float validator", "Failed to set field " + field + " to " + val, e);
 				}
 			}
 		});
-		addCancelOnESC(vtf);
-		return vtf;
 	}
 
-	protected static Actor floatEditField (final Object object, final Field field, Skin skin) throws ReflectionException {
-		float value = (float)field.get(object);
-		final TextField vtf = new TextField("", skin);
-		vtf.setText(Float.toString(value));
-		vtf.setTextFieldFilter(digitPeriodFieldFilter);
-		vtf.setTextFieldListener(new TextField.TextFieldListener() {
-			@Override public void keyTyped (TextField textField, char c) {
-				String text = vtf.getText();
-				if (validateFloat(text)) {
-					vtf.setColor(Color.WHITE);
-					try {
-						field.set(object, Float.valueOf(text));
-					} catch (ReflectionException e) {
-						Gdx.app.error("Float validator", "Failed to set field " + field + " to " + vtf.getText(), e);
-					}
-				} else {
-					vtf.setColor(Color.RED);
+	protected static Actor floatEditField (final Object object, final Field field, final boolean required, Skin skin) throws ReflectionException {
+		return valueEditField(skin, new FloatField() {
+			@Override public float getFloat () {
+				try {
+					return (float)field.get(object);
+				} catch (ReflectionException e) {
+					e.printStackTrace();
+				}
+				return 0;
+			}
+
+			@Override public void setFloat (float val) {
+				try {
+					field.set(object, val);
+				} catch (ReflectionException e) {
+					Gdx.app.error("Float validator", "Failed to set field " + field + " to " + val, e);
 				}
 			}
 		});
-		addCancelOnESC(vtf);
-		return vtf;
 	}
 
-	protected static Actor doubleEditField (final Object object, final Field field, Skin skin) throws ReflectionException {
-		float value = (float)field.get(object);
-		final TextField vtf = new TextField("", skin);
-		vtf.setText(Float.toString(value));
-		vtf.setTextFieldFilter(digitPeriodFieldFilter);
-		vtf.setTextFieldListener(new TextField.TextFieldListener() {
-			@Override public void keyTyped (TextField textField, char c) {
-				String text = vtf.getText();
-				if (validateDouble(text)) {
-					vtf.setColor(Color.WHITE);
-					try {
-						field.set(object, Float.valueOf(text));
-					} catch (ReflectionException e) {
-						Gdx.app.error("Float validator", "Failed to set field " + field + " to " + vtf.getText(), e);
-					}
-				} else {
-					vtf.setColor(Color.RED);
+	protected static Actor doubleEditField (final Object object, final Field field, final boolean required, Skin skin) throws ReflectionException {
+		return valueEditField(skin, new DoubleField() {
+			@Override public double getDouble () {
+				try {
+					return (double)field.get(object);
+				} catch (ReflectionException e) {
+					e.printStackTrace();
+				}
+				return 0;
+			}
+
+			@Override public void setDouble (double val) {
+				try {
+					field.set(object, val);
+				} catch (ReflectionException e) {
+					Gdx.app.error("Float validator", "Failed to set field " + field + " to " + val, e);
 				}
 			}
 		});
-		addCancelOnESC(vtf);
-		return vtf;
 	}
 
-	protected static Actor stringEditField (final Object object, final Field field, Skin skin) throws ReflectionException {
+	protected static Actor stringEditField (final Object object, final Field field, final boolean required, Skin skin) throws ReflectionException {
 		String value = (String)field.get(object);
 		final TextField tf = new TextField(value, skin);
 		tf.addListener(new ChangeListener() {
 			@Override public void changed (ChangeEvent event, Actor actor) {
 				String text = tf.getText();
-				if (text.length() == 0) {
+				if (text.length() == 0 && required) {
 					tf.setColor(Color.RED);
 				} else {
 					tf.setColor(Color.WHITE);
@@ -162,7 +156,7 @@ public class AttrFieldEdit {
 		return tf;
 	}
 
-	protected static Actor enumEditField (final Object object, final Field field, Skin skin) throws ReflectionException {
+	protected static Actor enumEditField (final Object object, final Field field, final boolean required, Skin skin) throws ReflectionException {
 		Object[] values = field.getType().getEnumConstants();
 		final SelectBox<Object> sb = new SelectBox<>(skin);
 		sb.setItems(values);
@@ -180,7 +174,7 @@ public class AttrFieldEdit {
 		return sb;
 	}
 
-	protected static Actor booleanEditField (final Object object, final Field field, Skin skin) throws ReflectionException {
+	protected static Actor booleanEditField (final Object object, final Field field, final boolean required, Skin skin) throws ReflectionException {
 		final SelectBox<Object> sb = new SelectBox<>(skin);
 		sb.setItems(true, false);
 		sb.setSelected(field.get(object));
@@ -199,7 +193,7 @@ public class AttrFieldEdit {
 
 	private static boolean validateInt(String str) {
 		try {
-			Integer val = Integer.valueOf(str);
+			int val = Integer.parseInt(str);
 		} catch (NumberFormatException e) {
 			return false;
 		}
@@ -208,7 +202,7 @@ public class AttrFieldEdit {
 
 	private static boolean validateLong(String str) {
 		try {
-			Long val = Long.valueOf(str);
+			long val = Long.parseLong(str);
 		} catch (NumberFormatException e) {
 			return false;
 		}
@@ -217,7 +211,7 @@ public class AttrFieldEdit {
 
 	private static boolean validateFloat(String str) {
 		try {
-			Float val = Float.valueOf(str);
+			float val = Float.parseFloat(str);
 		} catch (NumberFormatException e) {
 			return false;
 		}
@@ -226,113 +220,86 @@ public class AttrFieldEdit {
 
 	private static boolean validateDouble(String str) {
 		try {
-			Double val = Double.valueOf(str);
+			double val = Double.parseDouble(str);
 		} catch (NumberFormatException e) {
 			return false;
 		}
 		return true;
 	}
 
-//	private static void addFields (final Object object, final Field field, IDWrapper sel, Table fields, Skin skin)
-//		throws ReflectionException {
-//		if (sel.dist instanceof ConstantIntegerDistribution) {
-//			fields.add(new Label("iValue", skin));
-//
-//		}
-//		if (sel.dist instanceof TriangularIntegerDistribution) {
-//			fields.add(new Label("iLow", skin));
-//
-//			fields.add(new Label("iHigh", skin));
-//
-//			fields.add(new Label("fMode", skin));
-//
-//		}
-//		if (sel.dist instanceof UniformIntegerDistribution) {
-//			fields.add(new Label("iLow", skin));
-//
-//			fields.add(new Label("iHigh", skin));
-//
-//		}
-//	}
+	private static void createStuff (String text, final Object object, final Field field, Distribution dist, Table cont, Skin skin,
+		Class<? extends DWrapper>[] classes) {
+		final Table fields = new Table();
+		final SelectBox<DWrapper> sb = new SelectBox<>(skin);
+		cont.add(new Label(text, skin)).row();
+		cont.add(sb).row();
+		cont.add(fields);
 
-	protected static Actor distEditField (final Object object, final Field field, final Skin skin) throws ReflectionException {
+		DWrapper actual = null;
+		final DWrapper[] wrappers = new DWrapper[classes.length];
+		for (int i = 0; i < classes.length; i++) {
+			Class<? extends DWrapper> aClass = classes[i];
+			try {
+				Constructor constructor = ClassReflection.getDeclaredConstructor(aClass);
+				constructor.setAccessible(true);
+				DWrapper wrapper = (DWrapper)constructor.newInstance();
+				wrapper.init(object, field);
+				wrappers[i] = wrapper;
+				if (wrapper.isWrapperFor(dist)) {
+					actual = wrapper;
+				}
+			} catch (ReflectionException e) {
+				e.printStackTrace();
+			}
+		}
+
+		if (actual == null) {
+			Gdx.app.error(text, "Wrapper missing for " + dist);
+			return;
+		}
+		actual.set(dist);
+		actual.createEditFields(fields, skin);
+
+		sb.setItems(wrappers);
+		sb.setSelected(actual);
+		sb.addListener(new ChangeListener() {
+			@Override public void changed (ChangeEvent event, Actor actor) {
+				DWrapper selected = sb.getSelection().getLastSelected();
+				try {
+					field.set(object, selected.create());
+				} catch (ReflectionException e) {
+					Gdx.app.error("Boolean validator", "Failed to set field " + field + " to " + selected, e);
+				}
+				fields.clear();
+				selected.createEditFields(fields, skin);
+			}
+		});
+	}
+
+	protected static Actor distEditField (final Object object, final Field field, boolean required, final Skin skin) throws ReflectionException {
 		// how do implement this crap? multiple inputs probably for each value in the thing
 		Distribution dist = (Distribution)field.get(object);
 		final Table cont = new Table();
 		Class type = field.getType();
+
 		// add new edit fields, per type of distribution
 		// if field type is one of the abstract classes, we want to be able to pick dist we want
 		if (type == IntegerDistribution.class) {
-			final Table fields = new Table();
-			final SelectBox<IDWrapper> sb = new SelectBox<>(skin);
-			cont.add(new Label("Integer Distribution", skin)).row();
-			cont.add(sb).row();
-			cont.add(fields);
-			final IDWrapper cid = new CIDWrapper(object, field);
-			final IDWrapper tid = new TIDWrapper(object, field);
-			final IDWrapper uid = new UIDWrapper(object, field);
-			IDWrapper actual = null;
-			if (dist instanceof ConstantIntegerDistribution) {
-				cid.set((IntegerDistribution)dist);
-				cid.createEditFields(fields, skin);
-				actual = cid;
-			}
-			if (dist instanceof TriangularIntegerDistribution) {
-				tid.set((IntegerDistribution)dist);
-				tid.createEditFields(fields, skin);
-				actual = tid;
-			}
-			if (dist instanceof UniformIntegerDistribution) {
-				uid.set((IntegerDistribution)dist);
-				uid.createEditFields(fields, skin);
-				actual = uid;
-			}
-			sb.setItems(cid, tid, uid);
-			sb.setSelected(actual);
-//			addFields(object, field, actual, fields, skin);
-			sb.addListener(new ChangeListener() {
-				@Override public void changed (ChangeEvent event, Actor actor) {
-					IDWrapper selected = sb.getSelection().getLastSelected();
-					try {
-						field.set(object, selected.create());
-					} catch (ReflectionException e) {
-						Gdx.app.error("Boolean validator", "Failed to set field " + field + " to " + selected, e);
-					}
-					fields.clear();
-					selected.createEditFields(fields, skin);
-//					try {
-//						addFields(object, field, selected, fields, skin);
-//					} catch (ReflectionException e) {
-//						e.printStackTrace();
-//					}
-
-				}
-			});
-
+			createStuff("Integer distribution", object, field, dist, cont, skin, new Class[]{CIDWrapper.class, TIDWrapper.class, UIDWrapper.class});
 			return cont;
 		}
-		if (type == LongDistribution.class) {
-			Gdx.app.log("", "f int dist");
-//			ConstantLongDistribution;
-//			TriangularLongDistribution;
-//			UniformLongDistribution;
 
+		if (type == LongDistribution.class) {
+			createStuff("Long distribution", object, field, dist, cont, skin, new Class[]{CLDWrapper.class, TLDWrapper.class, ULDWrapper.class});
+			return cont;
 		}
 		if (type == FloatDistribution.class) {
-			Gdx.app.log("", "f int dist");
-//			ConstantFloatDistribution;
-//			GaussianFloatDistribution;
-//			TriangularFloatDistribution;
-//			UniformFloatDistribution;
-
+			createStuff("Float distribution", object, field, dist, cont, skin, new Class[]{CFDWrapper.class, TFDWrapper.class, UFDWrapper.class, GFDWrapper.class});
+			return cont;
 		}
 		if (type == DoubleDistribution.class) {
-			Gdx.app.log("", "f int dist");
-//			ConstantDoubleDistribution;
-//			GaussianDoubleDistribution;
-//			TriangularDoubleDistribution;
-//			UniformDoubleDistribution;
-
+			createStuff("Double distribution", object, field, dist, cont, skin, new Class[]{CDDWrapper.class, TDDWrapper.class, UDDWrapper.class, GDDWrapper.class});
+			return cont;
 		}
 		// if not we cant pick the type, just edit existing distribution
 
@@ -431,13 +398,121 @@ public class AttrFieldEdit {
 		return cont;
 	}
 
-	private static abstract class IDWrapper {
+	private static Actor valueEditField (Skin skin, ValueField valueField) {
+		final TextField vtf = new TextField("", skin);
+		vtf.setText(valueField.get());
+		vtf.setTextFieldFilter(valueField.getFilter());
+		vtf.setTextFieldListener(new TextField.TextFieldListener() {
+			@Override public void keyTyped (TextField textField, char c) {
+				String text = vtf.getText();
+				if (valueField.isValid(text)) {
+					vtf.setColor(Color.WHITE);
+					valueField.set(text);
+				} else {
+					vtf.setColor(Color.RED);
+				}
+			}
+		});
+		addCancelOnESC(vtf);
+		return vtf;
+	}
+
+	private static abstract class ValueField {
+		protected abstract String get();
+		protected abstract boolean isValid(String val);
+		protected abstract void set(String val);
+		protected abstract TextField.TextFieldFilter getFilter ();
+	}
+
+	private static abstract class IntField extends ValueField {
+		@Override protected boolean isValid (String val) {
+			return validateInt(val);
+		}
+
+		@Override public TextField.TextFieldFilter getFilter () {
+			return digitFieldFilter;
+		}
+
+		@Override final protected String get () {
+			return Integer.toString(getInt());
+		}
+
+		@Override final protected void set (String val) {
+			setInt(Integer.parseInt(val));
+		}
+
+		public abstract int getInt ();
+		public abstract void setInt (int val);
+	}
+
+	private static abstract class LongField extends ValueField {
+		@Override protected boolean isValid (String val) {
+			return validateLong(val);
+		}
+
+		@Override public TextField.TextFieldFilter getFilter () {
+			return digitFieldFilter;
+		}
+
+		@Override final protected String get () {
+			return Long.toString(getLong());
+		}
+
+		@Override final protected void set (String val) {
+			setLong(Long.parseLong(val));
+		}
+
+		public abstract long getLong ();
+		public abstract void setLong (long val);
+	}
+
+	private static abstract class FloatField extends ValueField {
+		@Override protected boolean isValid (String val) {
+			return validateFloat(val);
+		}
+
+		@Override final protected String get () {
+			return Float.toString(getFloat());
+		}
+
+		@Override final protected void set (String val) {
+			setFloat(Float.parseFloat(val));
+		}
+
+		@Override public TextField.TextFieldFilter getFilter () {
+			return digitPeriodFieldFilter;
+		}
+
+		public abstract float getFloat ();
+		public abstract void setFloat (float val);
+	}
+
+	private static abstract class DoubleField extends ValueField {
+		@Override protected boolean isValid (String val) {
+			return validateDouble(val);
+		}
+
+		@Override public TextField.TextFieldFilter getFilter () {
+			return digitPeriodFieldFilter;
+		}
+
+		@Override final protected String get () {
+			return Double.toString(getDouble());
+		}
+
+		@Override final protected void set (String val) {
+			setDouble(Double.parseDouble(val));
+		}
+
+		public abstract double getDouble ();
+		public abstract void setDouble (double val);
+	}
+
+	protected static abstract class DWrapper {
 		protected Object owner;
 		protected Field field;
-		public IDWrapper (Object owner, Field field) {
-			this.owner = owner;
-			this.field = field;
-		}
+
+		protected DWrapper () {}
 
 		protected final void updateOwner() {
 			try {
@@ -447,49 +522,50 @@ public class AttrFieldEdit {
 			}
 		}
 
-		public abstract IntegerDistribution create();
+		public abstract Distribution create();
 
-		public abstract void set (IntegerDistribution dist);
+		public abstract void set (Distribution dist);
 
 		public abstract void createEditFields (Table fields, Skin skin);
+
+		public abstract boolean isWrapperFor (Distribution distribution);
+
+		public DWrapper init (Object owner, Field field) {
+			this.owner = owner;
+			this.field = field;
+			return this;
+		}
 	}
 
-	private static class CIDWrapper extends IDWrapper {
+	protected static class CIDWrapper extends DWrapper {
 		protected int value;
-
-		public CIDWrapper (Object owner, Field field) {
-			super(owner, field);
-		}
 
 		@Override public void createEditFields (Table fields, Skin skin) {
 			fields.add(new Label("value", skin)).padRight(10);
-			final TextField vtf = new TextField("", skin);
-			vtf.setText(Integer.toString(value));
-			vtf.setTextFieldFilter(digitFieldFilter);
-			vtf.setTextFieldListener(new TextField.TextFieldListener() {
-				@Override public void keyTyped (TextField textField, char c) {
-					String text = vtf.getText();
-					if (validateInt(text)) {
-						vtf.setColor(Color.WHITE);
-						value = Integer.valueOf(text);
-						updateOwner();
-					} else {
-						vtf.setColor(Color.RED);
-					}
+			fields.add(valueEditField(skin, new IntField(){
+				@Override public int getInt () {
+					return value;
 				}
-			});
-			addCancelOnESC(vtf);
-			fields.add(vtf);
+
+				@Override public void setInt (int val) {
+					value = val;
+					updateOwner();
+				}
+			}));
+		}
+
+		@Override public boolean isWrapperFor (Distribution distribution) {
+			return distribution instanceof ConstantIntegerDistribution;
 		}
 
 		public IntegerDistribution create() {
 			return new ConstantIntegerDistribution(value);
 		}
 
-		@Override public void set (IntegerDistribution dist) {
+		@Override public void set (Distribution dist) {
 			if (dist instanceof ConstantIntegerDistribution) {
-				ConstantIntegerDistribution cid = (ConstantIntegerDistribution)dist;
-				value = cid.getValue();
+				ConstantIntegerDistribution id = (ConstantIntegerDistribution)dist;
+				value = id.getValue();
 			}
 		}
 
@@ -498,84 +574,63 @@ public class AttrFieldEdit {
 		}
 	}
 
-	private static class TIDWrapper extends IDWrapper {
+	protected static class TIDWrapper extends DWrapper {
 		protected int low;
 		protected int high;
 		protected float mode;
 
-		public TIDWrapper (Object owner, Field field) {
-			super(owner, field);
-		}
-
 		@Override public void createEditFields (Table fields, Skin skin) {
 			fields.add(new Label("low", skin)).padRight(10);
-			final TextField ltf = new TextField("", skin);
-			ltf.setText(Integer.toString(low));
-			ltf.setTextFieldFilter(digitFieldFilter);
-			ltf.setTextFieldListener(new TextField.TextFieldListener() {
-				@Override public void keyTyped (TextField textField, char c) {
-					String text = ltf.getText();
-					if (validateInt(text)) {
-						ltf.setColor(Color.WHITE);
-						low = Integer.valueOf(text);
-						updateOwner();
-					} else {
-						ltf.setColor(Color.RED);
-					}
+			fields.add(valueEditField(skin, new IntField(){
+				@Override public int getInt () {
+					return low;
 				}
-			});
-			addCancelOnESC(ltf);
-			fields.add(ltf).row();
+
+				@Override public void setInt (int val) {
+					low = val;
+					updateOwner();
+				}
+			})).row();
 
 			fields.add(new Label("high", skin)).padRight(10);
-			final TextField htf = new TextField("", skin);
-			htf.setText(Integer.toString(high));
-			htf.setTextFieldFilter(digitFieldFilter);
-			htf.setTextFieldListener(new TextField.TextFieldListener() {
-				@Override public void keyTyped (TextField textField, char c) {
-					String text = htf.getText();
-					if (validateInt(text)) {
-						htf.setColor(Color.WHITE);
-						high = Integer.valueOf(text);
-						updateOwner();
-					} else {
-						htf.setColor(Color.RED);
-					}
+			fields.add(valueEditField(skin, new IntField(){
+				@Override public int getInt () {
+					return high;
 				}
-			});
-			addCancelOnESC(htf);
-			fields.add(htf).row();
+
+				@Override public void setInt (int val) {
+					high = val;
+					updateOwner();
+				}
+			})).row();;
 
 			fields.add(new Label("mode", skin)).padRight(10);
-			final TextField mtf = new TextField("", skin);
-			mtf.setText(Float.toString(mode));
-			mtf.setTextFieldFilter(digitPeriodFieldFilter);
-			mtf.setTextFieldListener(new TextField.TextFieldListener() {
-				@Override public void keyTyped (TextField textField, char c) {
-					String text = mtf.getText();
-					if (validateFloat(text)) {
-						mtf.setColor(Color.WHITE);
-						mode = Float.valueOf(text);
-						updateOwner();
-					} else {
-						mtf.setColor(Color.RED);
-					}
+			fields.add(valueEditField(skin, new FloatField(){
+				@Override public float getFloat () {
+					return mode;
 				}
-			});
-			addCancelOnESC(mtf);
-			fields.add(mtf);
+
+				@Override public void setFloat (float val) {
+					mode = val;
+					updateOwner();
+				}
+			}));
 		}
 
 		public IntegerDistribution create() {
 			return new TriangularIntegerDistribution(low, high, mode);
 		}
 
-		@Override public void set (IntegerDistribution dist) {
+		@Override public boolean isWrapperFor (Distribution distribution) {
+			return distribution instanceof TriangularIntegerDistribution;
+		}
+
+		@Override public void set (Distribution dist) {
 			if (dist instanceof TriangularIntegerDistribution) {
-				TriangularIntegerDistribution tid = (TriangularIntegerDistribution)dist;
-				low = tid.getLow();
-				high = tid.getHigh();
-				mode = tid.getMode();
+				TriangularIntegerDistribution id = (TriangularIntegerDistribution)dist;
+				low = id.getLow();
+				high = id.getHigh();
+				mode = id.getMode();
 			}
 		}
 
@@ -584,68 +639,615 @@ public class AttrFieldEdit {
 		}
 	}
 
-	private static class UIDWrapper extends IDWrapper {
+	protected static class UIDWrapper extends DWrapper {
 		protected int low;
 		protected int high;
 
-		public UIDWrapper (Object owner, Field field) {
-			super(owner, field);
-		}
-
 		@Override public void createEditFields (Table fields, Skin skin) {
 			fields.add(new Label("low", skin)).padRight(10);
-			final TextField ltf = new TextField("", skin);
-			ltf.setText(Integer.toString(low));
-			ltf.setTextFieldFilter(digitFieldFilter);
-			ltf.setTextFieldListener(new TextField.TextFieldListener() {
-				@Override public void keyTyped (TextField textField, char c) {
-					String text = ltf.getText();
-					if (validateInt(text)) {
-						ltf.setColor(Color.WHITE);
-						low = Integer.valueOf(text);
-						updateOwner();
-					} else {
-						ltf.setColor(Color.RED);
-					}
+			fields.add(valueEditField(skin, new IntField() {
+				@Override public int getInt () {
+					return low;
 				}
-			});
-			addCancelOnESC(ltf);
-			fields.add(ltf).row();
+
+				@Override public void setInt (int val) {
+					low = val;
+					updateOwner();
+				}
+			})).row();;
 
 			fields.add(new Label("high", skin)).padRight(10);
-			final TextField htf = new TextField("", skin);
-			htf.setText(Integer.toString(high));
-			htf.setTextFieldFilter(digitFieldFilter);
-			htf.setTextFieldListener(new TextField.TextFieldListener() {
-				@Override public void keyTyped (TextField textField, char c) {
-					String text = htf.getText();
-					if (validateInt(text)) {
-						htf.setColor(Color.WHITE);
-						high = Integer.valueOf(text);
-						updateOwner();
-					} else {
-						htf.setColor(Color.RED);
-					}
+			fields.add(valueEditField(skin, new IntField() {
+				@Override public int getInt () {
+					return high;
 				}
-			});
-			addCancelOnESC(htf);
-			fields.add(htf).row();
+
+				@Override public void setInt (int val) {
+					high = val;
+					updateOwner();
+				}
+			}));
 		}
 
 		public IntegerDistribution create() {
 			return new UniformIntegerDistribution(low, high);
 		}
 
-		@Override public void set (IntegerDistribution dist) {
+		@Override public boolean isWrapperFor (Distribution distribution) {
+			return distribution instanceof UniformIntegerDistribution;
+		}
+
+		@Override public void set (Distribution dist) {
 			if (dist instanceof UniformIntegerDistribution) {
-				UniformIntegerDistribution uid = (UniformIntegerDistribution)dist;
-				low = uid.getLow();
-				high = uid.getHigh();
+				UniformIntegerDistribution id = (UniformIntegerDistribution)dist;
+				low = id.getLow();
+				high = id.getHigh();
 			}
 		}
 
 		@Override public String toString () {
 			return "Uniform";
+		}
+	}
+
+	protected static class CLDWrapper extends DWrapper {
+		protected long value;
+
+		@Override public void createEditFields (Table fields, Skin skin) {
+			fields.add(new Label("value", skin)).padRight(10);
+			fields.add(valueEditField(skin, new LongField(){
+				@Override public long getLong () {
+					return value;
+				}
+
+				@Override public void setLong (long val) {
+					value = val;
+					updateOwner();
+				}
+			}));
+		}
+
+		public Distribution create() {
+			return new ConstantLongDistribution(value);
+		}
+
+		@Override public boolean isWrapperFor (Distribution distribution) {
+			return distribution instanceof ConstantLongDistribution;
+		}
+
+		@Override public void set (Distribution dist) {
+			if (dist instanceof ConstantLongDistribution) {
+				ConstantLongDistribution ld = (ConstantLongDistribution)dist;
+				value = ld.getValue();
+			}
+		}
+
+		@Override public String toString () {
+			return "Constant";
+		}
+	}
+
+	protected static class TLDWrapper extends DWrapper {
+		protected long low;
+		protected long high;
+		protected double mode;
+
+		@Override public void createEditFields (Table fields, Skin skin) {
+			fields.add(new Label("low", skin)).padRight(10);
+			fields.add(valueEditField(skin, new LongField(){
+				@Override public long getLong () {
+					return low;
+				}
+
+				@Override public void setLong (long val) {
+					low = val;
+					updateOwner();
+				}
+			})).row();
+
+			fields.add(new Label("high", skin)).padRight(10);
+			fields.add(valueEditField(skin, new LongField(){
+				@Override public long getLong () {
+					return high;
+				}
+
+				@Override public void setLong (long val) {
+					high = val;
+					updateOwner();
+				}
+			})).row();
+
+			fields.add(new Label("mode", skin)).padRight(10);
+			fields.add(valueEditField(skin, new DoubleField(){
+				@Override public double getDouble () {
+					return mode;
+				}
+
+				@Override public void setDouble (double val) {
+					mode = val;
+					updateOwner();
+				}
+			}));
+		}
+
+		@Override public Distribution create() {
+			return new TriangularLongDistribution(low, high, mode);
+		}
+
+		@Override public boolean isWrapperFor (Distribution distribution) {
+			return distribution instanceof TriangularLongDistribution;
+		}
+
+		@Override public void set (Distribution dist) {
+			if (dist instanceof TriangularLongDistribution) {
+				TriangularLongDistribution ld = (TriangularLongDistribution)dist;
+				low = ld.getLow();
+				high = ld.getHigh();
+				mode = ld.getMode();
+			}
+		}
+
+		@Override public String toString () {
+			return "Triangular";
+		}
+	}
+
+	protected static class ULDWrapper extends DWrapper {
+		protected long low;
+		protected long high;
+
+		@Override public void createEditFields (Table fields, Skin skin) {
+			fields.add(new Label("low", skin)).padRight(10);
+			fields.add(valueEditField(skin, new LongField(){
+				@Override public long getLong () {
+					return low;
+				}
+
+				@Override public void setLong (long val) {
+					low = val;
+					updateOwner();
+				}
+			})).row();
+
+			fields.add(new Label("high", skin)).padRight(10);
+			fields.add(valueEditField(skin, new LongField(){
+				@Override public long getLong () {
+					return high;
+				}
+
+				@Override public void setLong (long val) {
+					high = val;
+					updateOwner();
+				}
+			})).row();
+		}
+
+		@Override public Distribution create() {
+			return new UniformLongDistribution(low, high);
+		}
+
+		@Override public boolean isWrapperFor (Distribution distribution) {
+			return distribution instanceof UniformLongDistribution;
+		}
+
+		@Override public void set (Distribution dist) {
+			if (dist instanceof UniformLongDistribution) {
+				UniformLongDistribution ld = (UniformLongDistribution)dist;
+				low = ld.getLow();
+				high = ld.getHigh();
+			}
+		}
+
+		@Override public String toString () {
+			return "Uniform";
+		}
+	}
+
+	protected static class CFDWrapper extends DWrapper {
+		protected float value;
+
+		@Override public void createEditFields (Table fields, Skin skin) {
+			fields.add(new Label("value", skin)).padRight(10);
+			fields.add(valueEditField(skin, new FloatField(){
+				@Override public float getFloat () {
+					return value;
+				}
+
+				@Override public void setFloat (float val) {
+					value = val;
+					updateOwner();
+				}
+			}));
+		}
+
+		public Distribution create() {
+			return new ConstantFloatDistribution(value);
+		}
+
+		@Override public boolean isWrapperFor (Distribution distribution) {
+			return distribution instanceof ConstantFloatDistribution;
+		}
+
+		@Override public void set (Distribution dist) {
+			if (dist instanceof ConstantFloatDistribution) {
+				ConstantFloatDistribution fd = (ConstantFloatDistribution)dist;
+				value = fd.getValue();
+			}
+		}
+
+		@Override public String toString () {
+			return "Constant";
+		}
+	}
+
+	protected static class TFDWrapper extends DWrapper {
+		protected float low;
+		protected float high;
+		protected float mode;
+
+		@Override public void createEditFields (Table fields, Skin skin) {
+			fields.add(new Label("low", skin)).padRight(10);
+			fields.add(valueEditField(skin, new FloatField() {
+				@Override public float getFloat () {
+					return low;
+				}
+
+				@Override public void setFloat (float val) {
+					low = val;
+					updateOwner();
+				}
+			})).row();
+
+			fields.add(new Label("high", skin)).padRight(10);
+			fields.add(valueEditField(skin, new FloatField() {
+				@Override public float getFloat () {
+					return high;
+				}
+
+				@Override public void setFloat (float val) {
+					high = val;
+					updateOwner();
+				}
+			})).row();
+
+			fields.add(new Label("mode", skin)).padRight(10);
+			fields.add(valueEditField(skin, new FloatField(){
+				@Override public float getFloat () {
+					return mode;
+				}
+
+				@Override public void setFloat (float val) {
+					mode = val;
+					updateOwner();
+				}
+			}));
+		}
+
+		@Override public Distribution create() {
+			return new TriangularFloatDistribution(low, high, mode);
+		}
+
+		@Override public boolean isWrapperFor (Distribution distribution) {
+			return distribution instanceof TriangularFloatDistribution;
+		}
+
+		@Override public void set (Distribution dist) {
+			if (dist instanceof TriangularFloatDistribution) {
+				TriangularFloatDistribution fd = (TriangularFloatDistribution)dist;
+				low = fd.getLow();
+				high = fd.getHigh();
+				mode = fd.getMode();
+			}
+		}
+
+		@Override public String toString () {
+			return "Triangular";
+		}
+	}
+
+	protected static class UFDWrapper extends DWrapper {
+		protected float low;
+		protected float high;
+
+		@Override public void createEditFields (Table fields, Skin skin) {
+			fields.add(new Label("low", skin)).padRight(10);
+			fields.add(valueEditField(skin, new FloatField(){
+				@Override public float getFloat () {
+					return low;
+				}
+
+				@Override public void setFloat (float val) {
+					low = val;
+					updateOwner();
+				}
+			})).row();
+
+			fields.add(new Label("high", skin)).padRight(10);
+			fields.add(valueEditField(skin, new FloatField(){
+				@Override public float getFloat () {
+					return high;
+				}
+
+				@Override public void setFloat (float val) {
+					high = val;
+					updateOwner();
+				}
+			})).row();
+		}
+
+		@Override public Distribution create() {
+			return new UniformFloatDistribution(low, high);
+		}
+
+		@Override public boolean isWrapperFor (Distribution distribution) {
+			return distribution instanceof UniformFloatDistribution;
+		}
+
+		@Override public void set (Distribution dist) {
+			if (dist instanceof UniformFloatDistribution) {
+				UniformFloatDistribution fd = (UniformFloatDistribution)dist;
+				low = fd.getLow();
+				high = fd.getHigh();
+			}
+		}
+
+		@Override public String toString () {
+			return "Uniform";
+		}
+	}
+
+	protected static class GFDWrapper extends DWrapper {
+		protected float mean;
+		protected float std;
+
+		@Override public void createEditFields (Table fields, Skin skin) {
+			fields.add(new Label("mean", skin)).padRight(10);
+			fields.add(valueEditField(skin, new FloatField(){
+				@Override public float getFloat () {
+					return mean;
+				}
+
+				@Override public void setFloat (float val) {
+					mean = val;
+					updateOwner();
+				}
+			})).row();
+
+			fields.add(new Label("STD", skin)).padRight(10);
+			fields.add(valueEditField(skin, new FloatField(){
+				@Override public float getFloat () {
+					return std;
+				}
+
+				@Override public void setFloat (float val) {
+					std = val;
+					updateOwner();
+				}
+			}));
+		}
+
+		@Override public Distribution create() {
+			return new GaussianFloatDistribution(mean, std);
+		}
+
+		@Override public boolean isWrapperFor (Distribution distribution) {
+			return distribution instanceof GaussianFloatDistribution;
+		}
+
+		@Override public void set (Distribution dist) {
+			if (dist instanceof GaussianFloatDistribution) {
+				GaussianFloatDistribution fd = (GaussianFloatDistribution)dist;
+				mean = fd.getMean();
+				std = fd.getStandardDeviation();
+			}
+		}
+
+		@Override public String toString () {
+			return "Gaussian";
+		}
+	}
+
+	protected static class CDDWrapper extends DWrapper {
+		protected double value;
+
+		@Override public void createEditFields (Table fields, Skin skin) {
+			fields.add(new Label("value", skin)).padRight(10);
+			fields.add(valueEditField(skin, new DoubleField(){
+				@Override public double getDouble () {
+					return value;
+				}
+
+				@Override public void setDouble (double val) {
+					value = val;
+					updateOwner();
+				}
+			}));
+		}
+
+		public Distribution create() {
+			return new ConstantDoubleDistribution(value);
+		}
+
+		@Override public boolean isWrapperFor (Distribution distribution) {
+			return distribution instanceof ConstantDoubleDistribution;
+		}
+
+		@Override public void set (Distribution dist) {
+			if (dist instanceof ConstantDoubleDistribution) {
+				ConstantDoubleDistribution fd = (ConstantDoubleDistribution)dist;
+				value = fd.getValue();
+			}
+		}
+
+		@Override public String toString () {
+			return "Constant";
+		}
+	}
+
+	protected static class TDDWrapper extends DWrapper {
+		protected double low;
+		protected double high;
+		protected double mode;
+
+		@Override public void createEditFields (Table fields, Skin skin) {
+			fields.add(new Label("low", skin)).padRight(10);
+			fields.add(valueEditField(skin, new DoubleField(){
+				@Override public double getDouble () {
+					return low;
+				}
+
+				@Override public void setDouble (double val) {
+					low = val;
+					updateOwner();
+				}
+			})).row();
+
+			fields.add(new Label("high", skin)).padRight(10);
+			fields.add(valueEditField(skin, new DoubleField(){
+				@Override public double getDouble () {
+					return high;
+				}
+
+				@Override public void setDouble (double val) {
+					high = val;
+					updateOwner();
+				}
+			})).row();
+
+			fields.add(new Label("mode", skin)).padRight(10);
+			fields.add(valueEditField(skin, new DoubleField(){
+				@Override public double getDouble () {
+					return mode;
+				}
+
+				@Override public void setDouble (double val) {
+					mode = val;
+					updateOwner();
+				}
+			}));
+		}
+
+		@Override public Distribution create() {
+			return new TriangularDoubleDistribution(low, high, mode);
+		}
+
+		@Override public boolean isWrapperFor (Distribution distribution) {
+			return distribution instanceof TriangularDoubleDistribution;
+		}
+
+		@Override public void set (Distribution dist) {
+			if (dist instanceof TriangularDoubleDistribution) {
+				TriangularDoubleDistribution dd = (TriangularDoubleDistribution)dist;
+				low = dd.getLow();
+				high = dd.getHigh();
+				mode = dd.getMode();
+			}
+		}
+
+		@Override public String toString () {
+			return "Triangular";
+		}
+	}
+
+	protected static class UDDWrapper extends DWrapper {
+		protected double low;
+		protected double high;
+
+		@Override public void createEditFields (Table fields, Skin skin) {
+			fields.add(new Label("low", skin)).padRight(10);
+			fields.add(valueEditField(skin, new DoubleField(){
+				@Override public double getDouble () {
+					return low;
+				}
+
+				@Override public void setDouble (double val) {
+					low = val;
+					updateOwner();
+				}
+			})).row();
+
+			fields.add(new Label("high", skin)).padRight(10);
+			fields.add(valueEditField(skin, new DoubleField(){
+				@Override public double getDouble () {
+					return high;
+				}
+
+				@Override public void setDouble (double val) {
+					high = val;
+					updateOwner();
+				}
+			}));
+		}
+
+		@Override public Distribution create() {
+			return new UniformDoubleDistribution(low, high);
+		}
+
+		@Override public boolean isWrapperFor (Distribution distribution) {
+			return distribution instanceof UniformDoubleDistribution;
+		}
+
+		@Override public void set (Distribution dist) {
+			if (dist instanceof UniformDoubleDistribution) {
+				UniformDoubleDistribution dd = (UniformDoubleDistribution)dist;
+				low = dd.getLow();
+				high = dd.getHigh();
+			}
+		}
+
+		@Override public String toString () {
+			return "Uniform";
+		}
+	}
+
+	protected static class GDDWrapper extends DWrapper {
+		protected double mean;
+		protected double std;
+
+		@Override public void createEditFields (Table fields, Skin skin) {
+			fields.add(new Label("mean", skin)).padRight(10);
+			fields.add(valueEditField(skin, new DoubleField(){
+				@Override public double getDouble () {
+					return mean;
+				}
+
+				@Override public void setDouble (double val) {
+					mean = val;
+					updateOwner();
+				}
+			})).row();
+
+			fields.add(new Label("STD", skin)).padRight(10);
+			fields.add(valueEditField(skin, new DoubleField(){
+				@Override public double getDouble () {
+					return std;
+				}
+
+				@Override public void setDouble (double val) {
+					std = val;
+					updateOwner();
+				}
+			}));
+		}
+
+		@Override public Distribution create() {
+			return new GaussianDoubleDistribution(mean, std);
+		}
+
+		@Override public boolean isWrapperFor (Distribution distribution) {
+			return distribution instanceof GaussianDoubleDistribution;
+		}
+
+		@Override public void set (Distribution dist) {
+			if (dist instanceof GaussianDoubleDistribution) {
+				GaussianDoubleDistribution dd = (GaussianDoubleDistribution)dist;
+				mean = dd.getMean();
+				std = dd.getStandardDeviation();
+			}
+		}
+
+		@Override public String toString () {
+			return "Gaussian";
 		}
 	}
 

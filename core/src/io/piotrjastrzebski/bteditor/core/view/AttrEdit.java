@@ -61,7 +61,7 @@ public class AttrEdit extends Table {
 		Table cont = new Table();
 		cont.add(new Label(name, skin)).row();
 		try {
-			cont.add(AttrFieldEdit.createEditField(task, field, skin));
+			cont.add(AttrFieldEdit.createEditField(task, field, ann.required(), skin));
 		} catch (ReflectionException e) {
 			e.printStackTrace();
 			cont.add(new Label("<Failed>", skin));
