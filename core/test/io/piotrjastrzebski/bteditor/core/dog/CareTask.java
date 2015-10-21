@@ -27,6 +27,9 @@ public class CareTask extends LeafTask<Dog> {
 	@TaskAttribute(required=true)
 	public float urgentProb = 0.8f;
 
+	@TaskAttribute(required=true)
+	public String test = "welp";
+
 	@Override
 	public void run () {
 		if (Math.random() < urgentProb) {
@@ -34,6 +37,8 @@ public class CareTask extends LeafTask<Dog> {
 		} else {
 			Dog dog = getObject();
 			dog.brainLog("It's leaking out!!!");
+			if (test != null)
+				dog.brainLog(test);
 			dog.setUrgent(true);
 			success();
 		}

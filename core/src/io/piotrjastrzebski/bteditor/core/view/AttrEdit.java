@@ -59,7 +59,7 @@ public class AttrEdit extends Table {
 			name = field.getName();
 		}
 		Table cont = new Table();
-		cont.add(new Label(name, skin)).padRight(5);
+		cont.add(new Label(name, skin)).row();
 		try {
 			cont.add(AttrFieldEdit.createEditField(task, field, skin));
 		} catch (ReflectionException e) {
