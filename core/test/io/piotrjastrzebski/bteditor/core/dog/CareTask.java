@@ -19,6 +19,8 @@ package io.piotrjastrzebski.bteditor.core.dog;
 import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.annotation.TaskAttribute;
+import com.badlogic.gdx.ai.utils.random.ConstantFloatDistribution;
+import com.badlogic.gdx.ai.utils.random.FloatDistribution;
 
 /** @author implicit-invocation
  * @author davebaol */
@@ -28,17 +30,23 @@ public class CareTask extends LeafTask<Dog> {
 	public float urgentProb = 0.8f;
 
 	@TaskAttribute(required=true)
-	public String test = "welp";
+	public String req = "req";
+
+	@TaskAttribute
+	public String notReq = "not-req";
+
+	@TaskAttribute
+	public FloatDistribution times = ConstantFloatDistribution.ONE;
 
 	@Override
 	public void run () {
 		if (Math.random() < urgentProb) {
 			success();
+		} else if (times.nextFloat() > .5f) {
+			running();
 		} else {
 			Dog dog = getObject();
 			dog.brainLog("It's leaking out!!!");
-			if (test != null)
-				dog.brainLog(test);
 			dog.setUrgent(true);
 			success();
 		}

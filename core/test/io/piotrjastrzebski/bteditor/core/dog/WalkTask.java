@@ -18,10 +18,16 @@ package io.piotrjastrzebski.bteditor.core.dog;
 
 import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
+import com.badlogic.gdx.ai.btree.annotation.TaskAttribute;
+import com.badlogic.gdx.ai.utils.random.*;
 
 /** @author implicit-invocation
  * @author davebaol */
 public class WalkTask extends LeafTask<Dog> {
+
+
+	@TaskAttribute
+	public LongDistribution times = new UniformLongDistribution(1, 3);
 
 	private int i = 0;
 
@@ -35,7 +41,7 @@ public class WalkTask extends LeafTask<Dog> {
 	public void run () {
 		i++;
 		getObject().randomlyWalk();
-		if (i < 3) {
+		if (i < times.nextLong()) {
 			running();
 		} else {
 			success();
