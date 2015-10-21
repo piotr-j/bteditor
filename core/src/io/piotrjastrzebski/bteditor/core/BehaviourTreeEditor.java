@@ -9,6 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Array;
 import io.piotrjastrzebski.bteditor.core.model.BTModel;
+import io.piotrjastrzebski.bteditor.core.view.AttrEdit;
+import io.piotrjastrzebski.bteditor.core.view.ViewTask;
 import io.piotrjastrzebski.bteditor.core.view.ViewTree;
 
 /**
@@ -18,7 +20,7 @@ import io.piotrjastrzebski.bteditor.core.view.ViewTree;
  * <p>
  * Created by PiotrJ on 20/06/15.
  */
-public class BehaviourTreeEditor<E> extends Table {
+public class BehaviourTreeEditor<E> extends Table implements ViewTree.ViewTaskSelectedListener<E> {
 	private Skin skin;
 
 	private Array<TaskNode> nodes = new Array<>();
@@ -27,6 +29,7 @@ public class BehaviourTreeEditor<E> extends Table {
 
 	private BTModel<E> model;
 	private ViewTree<E> view;
+	private AttrEdit edit;
 
 	public BehaviourTreeEditor (Skin skin, Drawable white) {
 		this(skin, white, 1);
@@ -38,13 +41,16 @@ public class BehaviourTreeEditor<E> extends Table {
 		model = new BTModel<>();
 		debugAll();
 		trash = new Label("Trash -> [_]", skin);
-		add(trash).colspan(2);
+		add(trash).colspan(3);
 		row();
-
+		edit = new AttrEdit(skin);
 		view = new ViewTree<>(skin, white, scale);
+		view.addListener(this);
 		view.addTrash(trash);
+		view.setShortStatuses(true);
 		add(view).expand().fill();
 		tasks = new Table();
+		add(edit).expand().fill();
 		ScrollPane pane = new ScrollPane(tasks);
 		add(pane).expand().fill().top();
 	}
@@ -57,6 +63,14 @@ public class BehaviourTreeEditor<E> extends Table {
 	public void initialize (BehaviorTree<E> tree) {
 		model.init(tree);
 		view.init(model);
+	}
+
+	@Override public void selected (ViewTask<E> task) {
+		edit.startEdit(task.getModelTask().getTask());
+	}
+
+	@Override public void deselected () {
+		edit.stopEdit();
 	}
 
 	/**

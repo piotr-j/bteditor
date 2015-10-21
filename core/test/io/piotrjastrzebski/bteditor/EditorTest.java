@@ -45,10 +45,13 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor {
 
 	@Override public void create () {
 		boolean highRes = Math.max(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()) > 1980;
+		float scale;
 		if (highRes || Display.getPixelScaleFactor() > 1.5f) {
 			VisUI.load(VisUI.SkinScale.X2);
+			scale = 2;
 		} else {
 			VisUI.load(VisUI.SkinScale.X1);
+			scale = 1;
 		}
 		Skin skin = VisUI.getSkin();
 
@@ -60,7 +63,7 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor {
 
 		Window editorWindow = new Window("Editor", skin);
 		stage.addActor(editorWindow);
-		editorWindow.setSize(600, 550);
+		editorWindow.setSize(600 * scale, 550 * scale );
 		editorWindow.setResizable(true);
 		editorWindow
 			.setPosition(stage.getWidth() / 2 - editorWindow.getWidth() / 2, stage.getHeight() / 2 - editorWindow.getHeight() / 2);
