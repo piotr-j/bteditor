@@ -31,6 +31,7 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 	protected DragAndDrop dad;
 	private Actor separator;
 	private Pool<BTEPayload> payloadPool;
+	private boolean shortStatuses;
 
 	public ViewTree (Skin skin, Drawable white) {
 		this(skin, white, 1);
@@ -297,6 +298,14 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 
 	public Pool<BTEPayload> getPayloadPool () {
 		return payloadPool;
+	}
+
+	public void setShortStatuses (boolean shortStatuses) {
+		this.shortStatuses = shortStatuses;
+	}
+
+	public boolean getShortStatuses () {
+		return shortStatuses;
 	}
 
 	public interface ViewTaskSelectedListener<E> {

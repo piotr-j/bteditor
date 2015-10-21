@@ -126,7 +126,11 @@ public class ViewTask<E> extends Tree.Node implements Pool.Poolable {
 	protected float fadeTime = 1.5f;
 
 	protected void statusChanged (Task.Status from, Task.Status to) {
-		status.setText(to.toString());
+		if (owner.getShortStatuses()) {
+			status.setText("" + to.toString().charAt(0));
+		} else {
+			status.setText(to.toString());
+		}
 		status.setColor(getColor(to));
 		status.clearActions();
 		status.addAction(Actions.color(Color.GRAY, fadeTime, Interpolation.pow3In));
