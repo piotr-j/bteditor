@@ -13,6 +13,7 @@ import com.badlogic.gdx.ai.btree.decorator.*;
 import com.badlogic.gdx.ai.btree.leaf.Failure;
 import com.badlogic.gdx.ai.btree.leaf.Success;
 import com.badlogic.gdx.ai.btree.leaf.Wait;
+import com.badlogic.gdx.ai.utils.random.UniformIntegerDistribution;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.graphics.GL20;
@@ -82,7 +83,7 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor {
 		editor.addTaskClass(AlwaysSucceed.class);
 //		editor.addTaskClass(Include.class);
 		editor.addTaskClass(Invert.class);
-//		editor.addTaskClass(Random.class);
+		editor.addTaskClass(Random.class);
 		editor.addTaskClass(Repeat.class);
 		editor.addTaskClass(SemaphoreGuard.class);
 		editor.addTaskClass(UntilFail.class);
@@ -120,7 +121,7 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor {
 			 always
 				rest
 		  sequence
-			 bark
+			 bark times:"uniform,1,5"
 			 walk
 			 bark
 			 mark
@@ -132,13 +133,15 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor {
 		selector.addChild(parallel);
 
 		CareTask care = new CareTask();
+		care.urgentProb = 0.8f;
 		parallel.addChild(care);
 		parallel.addChild(new AlwaysFail<>(new RestTask()));
 
 		Sequence<Dog> sequence = new Sequence<>();
 		selector.addChild(sequence);
-
-		sequence.addChild(new BarkTask());
+		BarkTask barkTask = new BarkTask();
+		barkTask.times = new UniformIntegerDistribution(1, 3);
+		sequence.addChild(barkTask);
 		sequence.addChild(new WalkTask());
 		sequence.addChild(new BarkTask());
 		sequence.addChild(new MarkTask());
