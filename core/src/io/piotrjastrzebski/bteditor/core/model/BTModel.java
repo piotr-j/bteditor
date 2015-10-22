@@ -52,6 +52,7 @@ public class BTModel<E> implements Pool.Poolable, BTTaskPool<E>, BehaviorTree.Li
 		if (this.bt != null)
 			reset();
 		this.bt = bt;
+		getTaskLibrary().initFrom(bt);
 		// TODO pool all the things
 		root = obtain();
 		root.init(bt.getChild(0));

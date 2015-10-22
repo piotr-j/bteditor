@@ -1,6 +1,7 @@
 package io.piotrjastrzebski.bteditor.core.model;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
@@ -91,5 +92,16 @@ public class TaskLibrary<E> {
 	 */
 	public void clear () {
 		classToInstance.clear();
+	}
+
+	public void initFrom (BehaviorTree<E> bt) {
+		addFromTask(bt.getChild(0));
+	}
+
+	private void addFromTask (Task<E> task) {
+		add(task);
+		for (int i = 0; i < task.getChildCount(); i++) {
+			addFromTask(task.getChild(i));
+		}
 	}
 }
