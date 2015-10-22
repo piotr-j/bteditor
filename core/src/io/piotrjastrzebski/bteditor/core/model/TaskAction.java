@@ -168,7 +168,6 @@ abstract class TaskAction implements Pool.Poolable {
 					Array children = (Array)field.get(target);
 					return children.removeValue(task, true);
 				} else if (target instanceof Decorator) {
-					error("REMOVE", "cannot add " + task + " to " + target + " as its a leaf");
 					Field field = ClassReflection.getDeclaredField(Decorator.class, "child");
 					field.setAccessible(true);
 					Object old = field.get(target);
@@ -179,7 +178,7 @@ abstract class TaskAction implements Pool.Poolable {
 					}
 					return old != null;
 				} else {
-					error("REMOVE", "cannot add " + task + " to " + target + " as its a leaf");
+					error("REMOVE", "cannot remove " + task + " from " + target + " as its a leaf");
 				}
 			} catch (ReflectionException e) {
 				error("REMOVE", "ReflectionException error", e);
