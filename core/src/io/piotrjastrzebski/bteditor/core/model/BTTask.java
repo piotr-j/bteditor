@@ -12,13 +12,12 @@ public class BTTask<E> implements Pool.Poolable {
 	private TaskType type;
 	private Array<BTTask<E>> children;
 	private boolean isValid;
-	private BTTaskPool<E> pool;
-	private Array<TaskAction> pending = new Array<>();
+	private BTModel<E> model;
 	private BTTask<E> parent;
 	private ValidChangeListener<E> changeListener;
 
-	public BTTask (BTTaskPool<E> pool) {
-		this.pool = pool;
+	public BTTask (BTModel<E> model) {
+		this.model = model;
 		children = new Array<>();
 	}
 
@@ -36,7 +35,7 @@ public class BTTask<E> implements Pool.Poolable {
 	}
 
 	public int addChild (Task<E> task) {
-		BTTask<E> child = pool.obtain();
+		BTTask<E> child = model.obtain();
 		child.init(task);
 		return addChild(child);
 	}
@@ -44,13 +43,13 @@ public class BTTask<E> implements Pool.Poolable {
 	public int addChild (BTTask<E> child) {
 		child.parent = this;
 		children.add(child);
-		pending.add(TaskAction.add(task, child.getTask()));
+		model.addTaskAction(TaskAction.add(task, child.getTask()));
 		validate();
 		return children.size - 1;
 	}
 
 	public int insertChild (int index, Task<E> task) {
-		BTTask<E> child = pool.obtain();
+		BTTask<E> child = model.obtain();
 		child.init(task);
 		return insertChild(index, child);
 	}
@@ -58,7 +57,7 @@ public class BTTask<E> implements Pool.Poolable {
 	public int insertChild (int index, BTTask<E> child) {
 		child.parent = this;
 		children.insert(index, child);
-		pending.add(TaskAction.insert(task, child.getTask(), index));
+		model.addTaskAction(TaskAction.insert(task, child.getTask(), index));
 		validate();
 		return children.size - 1;
 	}
@@ -68,7 +67,7 @@ public class BTTask<E> implements Pool.Poolable {
 	}
 
 	public BTTask<E> removeChild (BTTask<E> child) {
-		pending.add(TaskAction.remove(task, child.getTask()));
+		model.addTaskAction(TaskAction.remove(task, child.getTask()));
 		children.removeValue(child, true);
 		child.parent = null;
 		validate();
@@ -96,30 +95,6 @@ public class BTTask<E> implements Pool.Poolable {
 		}
 	}
 
-	public void executePending () {
-		// do how do we handle multiple actions?
-		// they shouldnt break validity...
-		if (isValid && pending.size > 0) {
-			for (TaskAction taskAction : pending) {
-				taskAction.execute();
-			}
-			pending.clear();
-		}
-		// fori as it may be nested
-		for (int i = 0; i < children.size; i++) {
-			children.get(i).executePending();
-		}
-	}
-
-	public boolean isDirty () {
-		for (BTTask<E> child : children) {
-			if (child.isDirty()) {
-				return true;
-			}
-		}
-		return pending.size > 0;
-	}
-
 	protected BTTask<E> find (Task<E> target) {
 		if (task == target)
 			return this;
@@ -144,9 +119,8 @@ public class BTTask<E> implements Pool.Poolable {
 
 	@Override public void reset () {
 		// todo free pooled
-		pending.clear();
 		for (BTTask<E> child : children) {
-			pool.free(child);
+			model.free(child);
 		}
 		children.clear();
 		task = null;

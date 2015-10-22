@@ -32,6 +32,7 @@ public class BTTaskTest {
 	CareTask care;
 	AlwaysFail<Dog> alwaysFail;
 
+	BTModel<Dog> model;
 	BTTask<Dog> root;
 	BTTaskPool<Dog> pool;
 
@@ -42,16 +43,8 @@ public class BTTaskTest {
 		walk = new WalkTask();
 		care = new CareTask();
 
-		pool = new BTTaskPool<Dog>() {
-			@Override public BTTask<Dog> obtain () {
-				return new BTTask<>(this);
-			}
-
-			@Override public void free (BTTask<Dog> task) {
-				// no a real pool, do nothing
-			}
-		};
-		root = new BTTask<>(pool);
+		model = new BTModel<>();
+		root = new BTTask<>(model);
 	}
 
 	@After public void tearDown () throws Exception {
@@ -76,7 +69,7 @@ public class BTTaskTest {
 		assertEquals(TaskType.LEAF, root.getType());
 		assertEquals(0, root.getChildCount());
 		assertTrue(root.isValid());
-		assertFalse(root.isDirty());
+		assertFalse(model.isDirty());
 	}
 
 	@Test public void initSimpleInvalidDecorator () {
@@ -85,7 +78,7 @@ public class BTTaskTest {
 		assertEquals(TaskType.DECORATOR, root.getType());
 		assertEquals(0, root.getChildCount());
 		assertFalse(root.isValid());
-		assertFalse(root.isDirty());
+		assertFalse(model.isDirty());
 	}
 
 	@Test public void initSimpleInvalidBranch () {
@@ -94,7 +87,7 @@ public class BTTaskTest {
 		assertEquals(TaskType.BRANCH, root.getType());
 		assertEquals(0, root.getChildCount());
 		assertFalse(root.isValid());
-		assertFalse(root.isDirty());
+		assertFalse(model.isDirty());
 	}
 
 	@Test public void initValid () {
@@ -107,7 +100,7 @@ public class BTTaskTest {
 		assertEquals(TaskType.BRANCH, root.getType());
 		assertEquals(2, root.getChildCount());
 		assertTrue(root.isValid());
-		assertTrue(root.isDirty());
+		assertTrue(model.isDirty());
 
 		BTTask<Dog> careChild = root.getChild(0);
 		BTTask<Dog> failChild = root.getChild(1);
@@ -162,7 +155,7 @@ public class BTTaskTest {
 		assertEquals(TaskType.DECORATOR, root.getType());
 		assertEquals(1, root.getChildCount());
 		assertFalse(root.isValid());
-		assertTrue(root.isDirty());
+		assertTrue(model.isDirty());
 
 		BTTask<Dog> selChild = root.getChild(0);
 
@@ -181,19 +174,19 @@ public class BTTaskTest {
 		root.addChild(tBark);
 		root.validate();
 		assertTrue(root.isValid());
-		assertTrue(root.isDirty());
+		assertTrue(model.isDirty());
 
 		Task<Dog> sel = root.getTask();
 		assertEquals(1, sel.getChildCount());
 		assertEquals(care, sel.getChild(0));
 
-		root.executePending();
+		model.executePending();
 
 		assertEquals(2, sel.getChildCount());
 		assertEquals(bark, sel.getChild(1));
 
 		assertTrue(root.isValid());
-		assertFalse(root.isDirty());
+		assertFalse(model.isDirty());
 	}
 
 	@Test public void addInvalid () {
@@ -205,18 +198,18 @@ public class BTTaskTest {
 		root.addChild(tBark);
 		root.validate();
 		assertTrue(root.isValid());
-		assertTrue(root.isDirty());
+		assertTrue(model.isDirty());
 
 		Task<Dog> fail = root.getTask();
 		assertEquals(0, fail.getChildCount());
 
-		root.executePending();
+		model.executePending();
 
 		assertEquals(1, fail.getChildCount());
 		assertEquals(bark, fail.getChild(0));
 
 		assertTrue(root.isValid());
-		assertFalse(root.isDirty());
+		assertFalse(model.isDirty());
 	}
 
 	@Test public void addValidComplex () {
@@ -234,29 +227,29 @@ public class BTTaskTest {
 		root.validate();
 
 		assertTrue(root.isValid());
-		assertTrue(root.isDirty());
+		assertTrue(model.isDirty());
 
 		Task<Dog> rt = root.getTask();
 		assertEquals(1, rt.getChildCount());
 		assertEquals(care, rt.getChild(0));
 
-		root.executePending();
+		model.executePending();
 
 		assertEquals(2, rt.getChildCount());
 		assertEquals(alwaysFail, rt.getChild(1));
 
 		assertTrue(root.isValid());
-		assertFalse(root.isDirty());
+		assertFalse(model.isDirty());
 	}
 
 	@Test public void insertStart () {
 		root.init(selector);
 		root.addChild(care);
 		root.addChild(walk);
-		root.executePending();
+		model.executePending();
 
 		root.insertChild(0, bark);
-		root.executePending();
+		model.executePending();
 
 		assertTrue(root.isValid());
 		assertEquals(3, root.getChildCount());
@@ -267,10 +260,10 @@ public class BTTaskTest {
 		root.init(selector);
 		root.addChild(care);
 		root.addChild(walk);
-		root.executePending();
+		model.executePending();
 
 		root.insertChild(1, bark);
-		root.executePending();
+		model.executePending();
 
 		assertTrue(root.isValid());
 		assertEquals(3, root.getChildCount());
@@ -281,10 +274,10 @@ public class BTTaskTest {
 		root.init(selector);
 		root.addChild(care);
 		root.addChild(walk);
-		root.executePending();
+		model.executePending();
 
 		root.insertChild(2, bark);
-		root.executePending();
+		model.executePending();
 
 		assertTrue(root.isValid());
 		assertEquals(3, root.getChildCount());
@@ -294,10 +287,10 @@ public class BTTaskTest {
 	@Test public void remove () {
 		selector.addChild(bark);
 		root.init(selector);
-		root.executePending();
+		model.executePending();
 
 		assertTrue(root.isValid());
-		assertFalse(root.isDirty());
+		assertFalse(model.isDirty());
 
 		BTTask<Dog> tSel = root.getChild(0);
 		root.removeChild(tSel);
@@ -305,10 +298,10 @@ public class BTTaskTest {
 		assertFalse(root.isValid());
 		assertEquals(0, root.getChildCount());
 		// root is not valid, does nothing
-		root.executePending();
+		model.executePending();
 		assertFalse(root.isValid());
 		root.addChild(care);
-		root.executePending();
+		model.executePending();
 		assertEquals(1, root.getChildCount());
 		assertTrue(root.isValid());
 	}
@@ -318,10 +311,10 @@ public class BTTaskTest {
 		selector.addChild(care);
 		alwaysFail.addChild(selector);
 		root.init(alwaysFail);
-		root.executePending();
+		model.executePending();
 
 		assertTrue(root.isValid());
-		assertFalse(root.isDirty());
+		assertFalse(model.isDirty());
 		assertEquals(1, root.getChildCount());
 		BTTask<Dog> tSel = root.getChild(0);
 		assertEquals(2, tSel.getChildCount());
@@ -332,9 +325,9 @@ public class BTTaskTest {
 		tSel.removeChild(tBark);
 		root.validate();
 		assertTrue(root.isValid());
-		assertTrue(root.isDirty());
-		root.executePending();
-		assertFalse(root.isDirty());
+		assertTrue(model.isDirty());
+		model.executePending();
+		assertFalse(model.isDirty());
 
 		assertEquals(1, tSel.getChildCount());
 
@@ -342,18 +335,18 @@ public class BTTaskTest {
 		root.validate();
 
 		assertFalse(root.isValid());
-		assertTrue(root.isDirty());
+		assertTrue(model.isDirty());
 
 		// cant execute as root is not valid
-		root.executePending();
-		assertTrue(root.isDirty());
+		model.executePending();
+		assertTrue(model.isDirty());
 
 		tSel.addChild(walk);
-		tSel.executePending();
+		model.executePending();
 		root.validate();
 
 		assertTrue(root.isValid());
-		assertFalse(root.isDirty());
+		assertFalse(model.isDirty());
 	}
 
 	@Test public void reset () {

@@ -1,5 +1,6 @@
 package io.piotrjastrzebski.bteditor.core.model;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.utils.Array;
@@ -28,9 +29,23 @@ public class BTModel<E> implements Pool.Poolable, BTTaskPool<E>, BehaviorTree.Li
 	private boolean valid;
 	private boolean dirty;
 	private BTTask<E> root;
+	private Array<TaskAction> pending = new Array<>();
 
 	public BTModel () {
 		taskLibrary = new TaskLibrary<>();
+//		TaskAction.setLogger(new Logger() {
+//			@Override public void log (String tag, String msg) {
+//				Gdx.app.log(tag, msg);
+//			}
+//
+//			@Override public void error (String tag, String msg) {
+//				Gdx.app.error(tag, msg);
+//			}
+//
+//			@Override public void error (String tag, String msg, Exception e) {
+//				Gdx.app.error(tag, msg, e);
+//			}
+//		});
 	}
 
 	public void init (BehaviorTree<E> bt) {
@@ -41,8 +56,7 @@ public class BTModel<E> implements Pool.Poolable, BTTaskPool<E>, BehaviorTree.Li
 		root = obtain();
 		root.init(bt.getChild(0));
 		valid = root.isValid();
-		if (valid)
-			root.executePending();
+		if (valid) executePending();
 		bt.addListener(this);
 	}
 
@@ -124,8 +138,7 @@ public class BTModel<E> implements Pool.Poolable, BTTaskPool<E>, BehaviorTree.Li
 			return null;
 		}
 		target.insertChild(at, task);
-		task.
-			validate();
+		task.validate();
 		dirty = true;
 		return task;
 	}
@@ -156,6 +169,10 @@ public class BTModel<E> implements Pool.Poolable, BTTaskPool<E>, BehaviorTree.Li
 		return target;
 	}
 
+	protected void addTaskAction(TaskAction action) {
+		pending.add(action);
+	}
+
 	private BTTask<E> findBTTask (Task<E> target) {
 		return root.find(target);
 	}
@@ -177,9 +194,20 @@ public class BTModel<E> implements Pool.Poolable, BTTaskPool<E>, BehaviorTree.Li
 		valid = root.validate();
 		if (valid) {
 			// execute pending, modify wrapped behaviour tree
-			root.executePending();
+			executePending();
 		}
 		return valid;
+	}
+
+	protected void executePending () {
+		for (TaskAction taskAction : pending) {
+			taskAction.execute();
+		}
+		pending.clear();
+	}
+
+	public boolean isDirty () {
+		return pending.size > 0;
 	}
 
 	public boolean isValid () {
