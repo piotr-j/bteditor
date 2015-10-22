@@ -276,6 +276,30 @@ public class AttrFieldEdit {
 		});
 	}
 
+	private static void createSimpleDistEditField (String text, final Object object, final Field field, Distribution dist, Table cont,
+		Skin skin, Class<? extends DWrapper> aClass) {
+		final Table fields = new Table();
+		cont.add(new Label(text, skin)).row();
+		cont.add(fields);
+
+		DWrapper wrapper = null;
+		try {
+			Constructor constructor = ClassReflection.getDeclaredConstructor(aClass);
+			constructor.setAccessible(true);
+			wrapper = (DWrapper)constructor.newInstance();
+			wrapper.init(object, field);
+		} catch (ReflectionException e) {
+			e.printStackTrace();
+		}
+
+		if (wrapper == null) {
+			Gdx.app.error(text, "Wrapper missing for " + dist);
+			return;
+		}
+		wrapper.set(dist);
+		wrapper.createEditFields(fields, skin);
+	}
+
 	protected static Actor distEditField (final Object object, final Field field, boolean required, final Skin skin) throws ReflectionException {
 		// how do implement this crap? multiple inputs probably for each value in the thing
 		Distribution dist = (Distribution)field.get(object);
@@ -289,7 +313,6 @@ public class AttrFieldEdit {
 				new Class[] {CIDWrapper.class, TIDWrapper.class, UIDWrapper.class});
 			return cont;
 		}
-
 		if (type == LongDistribution.class) {
 			createDistEditField("Long distribution", object, field, dist, cont, skin,
 				new Class[] {CLDWrapper.class, TLDWrapper.class, ULDWrapper.class});
@@ -306,100 +329,59 @@ public class AttrFieldEdit {
 			return cont;
 		}
 		// if not we cant pick the type, just edit existing distribution
+		Class<? extends DWrapper> wrapper = getWrapperFor(type);
+		if (wrapper == null) {
+			Gdx.app.error(TAG, "Wrapper for " + type + " not found!");
+			return cont;
+		}
+		createSimpleDistEditField(type.getSimpleName(), object, field, dist, cont, skin, wrapper);
+		return cont;
+	}
 
-		/*
+	private static Class<? extends DWrapper> getWrapperFor (Class type) {
 		if (type == ConstantIntegerDistribution.class) {
-			Gdx.app.log("", "f const int dist");
+			return CIDWrapper.class;
+		}
+		if (type == ConstantLongDistribution.class) {
+			return CLDWrapper.class;
+		}
+		if (type == ConstantFloatDistribution.class) {
+			return CFDWrapper.class;
+		}
+		if (type == ConstantDoubleDistribution.class) {
+			return CDDWrapper.class;
+		}
+		if (type == GaussianFloatDistribution.class) {
+			return GFDWrapper.class;
+		}
+		if (type == GaussianDoubleDistribution.class) {
+			return GDDWrapper.class;
+		}
+		if (type == TriangularIntegerDistribution.class) {
+			return TIDWrapper.class;
+		}
+		if (type == TriangularLongDistribution.class) {
+			return TLDWrapper.class;
+		}
+		if (type == TriangularFloatDistribution.class) {
+			return TFDWrapper.class;
+		}
+		if (type == TriangularDoubleDistribution.class) {
+			return TDDWrapper.class;
 		}
 		if (type == UniformIntegerDistribution.class) {
-			Gdx.app.log("", "f uni int dist");
+			return UIDWrapper.class;
 		}
-		if (dist instanceof ConstantIntegerDistribution) {
-			ConstantIntegerDistribution cid = (ConstantIntegerDistribution)dist;
-//			return "constant," + ((ConstantIntegerDistribution)dist).getValue();
-			Gdx.app.log("", "const int dist");
-
+		if (type == UniformLongDistribution.class) {
+			return ULDWrapper.class;
 		}
-		if (dist instanceof ConstantLongDistribution) {
-			ConstantLongDistribution cld = (ConstantLongDistribution)dist;
-//			return "constant," + ((ConstantLongDistribution)dist).getValue();
-
+		if (type == UniformFloatDistribution.class) {
+			return UFDWrapper.class;
 		}
-		if (dist instanceof ConstantFloatDistribution) {
-			ConstantFloatDistribution cfd = (ConstantFloatDistribution)dist;
-//			return "constant," + ((ConstantFloatDistribution)dist).getValue();
-
+		if (type == UniformDoubleDistribution.class) {
+			return UDDWrapper.class;
 		}
-		if (dist instanceof ConstantDoubleDistribution) {
-			ConstantDoubleDistribution cdd = (ConstantDoubleDistribution)dist;
-//			return "constant," + ((ConstantDoubleDistribution)dist).getValue();
-
-		}
-		if (dist instanceof GaussianFloatDistribution) {
-			GaussianFloatDistribution gfd = (GaussianFloatDistribution)dist;
-//			return "gaussian," + gfd.getMean() + "," + gfd.getStandardDeviation();
-
-		}
-		if (dist instanceof GaussianDoubleDistribution) {
-			GaussianDoubleDistribution gdd = (GaussianDoubleDistribution)dist;
-//			return "gaussian," + gdd.getMean() + ","+ gdd.getStandardDeviation();
-
-		}
-		if (dist instanceof TriangularIntegerDistribution) {
-			TriangularIntegerDistribution tid = (TriangularIntegerDistribution)dist;
-//			return "triangular," + tid.getLow() + "," + tid.getHigh() + "," + tid.getMode();
-
-		}
-		if (dist instanceof TriangularLongDistribution) {
-			TriangularLongDistribution tld = (TriangularLongDistribution)dist;
-//			return "triangular," + tld.getLow() + "," + tld.getHigh() + "," + tld.getMode();
-
-		}
-		if (dist instanceof TriangularFloatDistribution) {
-			TriangularFloatDistribution tfd = (TriangularFloatDistribution)dist;
-//			return "triangular," + tfd.getLow() + "," + tfd.getHigh() + "," + tfd.getMode();
-
-		}
-		if (dist instanceof TriangularDoubleDistribution) {
-			TriangularDoubleDistribution tdd = (TriangularDoubleDistribution)dist;
-//			return "triangular," + tdd.getLow() + "," + tdd.getHigh() + "," + tdd.getMode();
-
-		}
-		if (dist instanceof UniformIntegerDistribution) {
-			UniformIntegerDistribution uid = (UniformIntegerDistribution)dist;
-//			return "uniform," + uid.getLow() + "," + uid.getHigh();
-			Gdx.app.log("", "uni int dist");
-
-		}
-		if (dist instanceof UniformLongDistribution) {
-			UniformLongDistribution uld = (UniformLongDistribution)dist;
-//			return "uniform," + uld.getLow() + "," + uld.getHigh();
-
-		}
-		if (dist instanceof UniformFloatDistribution) {
-			UniformFloatDistribution ufd = (UniformFloatDistribution)dist;
-//			return "uniform," + ufd.getLow() + "," + ufd.getHigh();
-
-		}
-		if (dist instanceof UniformDoubleDistribution) {
-			UniformDoubleDistribution udd = (UniformDoubleDistribution)dist;
-//			return "uniform," + udd.getLow() + "," + udd.getHigh();
-
-		}
-		if (dist instanceof IntegerDistribution) {
-			Gdx.app.log("", "int dist");
-		}
-		if (dist instanceof LongDistribution) {
-
-		}
-		if (dist instanceof FloatDistribution) {
-
-		}
-		if (dist instanceof DoubleDistribution) {
-			Gdx.app.log("", "double dist");
-		}
-		*/
-		return cont;
+		return null;
 	}
 
 	private static Actor valueEditField (Skin skin, ValueField valueField) {
