@@ -34,7 +34,6 @@ public class BTTaskTest {
 
 	BTModel<Dog> model;
 	BTTask<Dog> root;
-	BTTaskPool<Dog> pool;
 
 	@Before public void setUp () throws Exception {
 		selector = new Selector<>();
@@ -168,7 +167,7 @@ public class BTTaskTest {
 	@Test public void addValid () {
 		selector.addChild(care);
 		root.init(selector);
-		BTTask<Dog> tBark = pool.obtain();
+		BTTask<Dog> tBark = model.obtain();
 		tBark.init(bark);
 
 		root.addChild(tBark);
@@ -192,7 +191,7 @@ public class BTTaskTest {
 	@Test public void addInvalid () {
 		root.init(alwaysFail);
 
-		BTTask<Dog> tBark = pool.obtain();
+		BTTask<Dog> tBark = model.obtain();
 		tBark.init(bark);
 
 		root.addChild(tBark);
@@ -216,10 +215,10 @@ public class BTTaskTest {
 		selector.addChild(care);
 		root.init(selector);
 
-		BTTask<Dog> tFail = pool.obtain();
+		BTTask<Dog> tFail = model.obtain();
 		tFail.init(alwaysFail);
 
-		BTTask<Dog> tBark = pool.obtain();
+		BTTask<Dog> tBark = model.obtain();
 		tBark.init(bark);
 		tFail.addChild(tBark);
 
@@ -339,7 +338,7 @@ public class BTTaskTest {
 
 		// cant execute as root is not valid
 		model.executePending();
-		assertTrue(model.isDirty());
+		assertFalse(model.isDirty());
 
 		tSel.addChild(walk);
 		model.executePending();
