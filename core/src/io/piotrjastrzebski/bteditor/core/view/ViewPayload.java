@@ -9,7 +9,7 @@ import com.badlogic.gdx.utils.Pool;
 /**
  * Created by PiotrJ on 12/10/15.
  */
-public class BTEPayload extends DragAndDrop.Payload implements Pool.Poolable {
+public class ViewPayload extends DragAndDrop.Payload implements Pool.Poolable {
 	public static final int TARGET_TRASH = 1;
 	public static final int TARGET_ADD = 1 << 1;
 	public static final int TARGET_MOVE = 1 << 2;
@@ -19,7 +19,7 @@ public class BTEPayload extends DragAndDrop.Payload implements Pool.Poolable {
 	protected Label invalid;
 	protected int targetMask;
 
-	public BTEPayload (Skin skin) {
+	public ViewPayload (Skin skin) {
 		drag = new Label("", skin);
 		setDragActor(drag);
 		valid = new Label("", skin);
@@ -36,7 +36,7 @@ public class BTEPayload extends DragAndDrop.Payload implements Pool.Poolable {
 		invalid.setText(text);
 	}
 
-	public BTEPayload addTarget (int target) {
+	public ViewPayload addTarget (int target) {
 		targetMask |= target;
 		return this;
 	}

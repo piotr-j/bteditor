@@ -8,36 +8,26 @@ import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
+import io.piotrjastrzebski.bteditor.core.BehaviourTreeEditor;
+import io.piotrjastrzebski.bteditor.core.Logger;
 
 /**
  * Created by PiotrJ on 15/10/15.
  */
-abstract class TaskAction implements Pool.Poolable {
-	protected static Logger logger;
+abstract class ModelTaskAction implements Pool.Poolable {
+	protected static Logger logger = BehaviourTreeEditor.NULL_LOGGER;
+	protected static void setLogger (Logger logger) {
+		if (logger == null) {
+			ModelTaskAction.logger = BehaviourTreeEditor.NULL_LOGGER;
+		} else {
+			ModelTaskAction.logger = logger;
+		}
+	}
 
 	protected Task task;
 	protected Task target;
 
-	public static void setLogger (Logger logger) {
-		TaskAction.logger = logger;
-	}
-
-	private static void log (String tag, String msg) {
-		if (logger != null)
-			logger.log(tag, msg);
-	}
-
-	private static void error (String tag, String msg) {
-		if (logger != null)
-			logger.error(tag, msg);
-	}
-
-	private static void error (String tag, String msg, Exception e) {
-		if (logger != null)
-			logger.error(tag, msg, e);
-	}
-
-	public TaskAction init (Task target, Task task) {
+	public ModelTaskAction init (Task target, Task task) {
 		if (target == null)
 			throw new IllegalArgumentException("Target cannot be null");
 		if (task == null)
@@ -56,11 +46,11 @@ abstract class TaskAction implements Pool.Poolable {
 
 	abstract boolean execute ();
 
-	public static class Add extends TaskAction {
+	public static class Add extends ModelTaskAction {
 		@Override boolean execute () {
 			try {
 				// TODO fix logs so they work in tests
-				log("ADD", task + " to " + target);
+				logger.log("ADD", task + " to " + target);
 				// we need to check it task is in target before we add, as that will happen on init
 				if (target instanceof BranchTask) {
 					Field field = ClassReflection.getDeclaredField(BranchTask.class, "children");
@@ -77,24 +67,24 @@ abstract class TaskAction implements Pool.Poolable {
 					if (old == null) {
 						field.set(target, task);
 					} else if (old != task) {
-						log("ADD", "Replace " + old + " with " + task);
+						logger.log("ADD", "Replace " + old + " with " + task);
 						field.set(target, task);
 					}
 					return true;
 				} else {
-					error("ADD", "cannot add " + task + " to " + target + " as its a leaf");
+					logger.error("ADD", "cannot add " + task + " to " + target + " as its a leaf");
 				}
 			} catch (ReflectionException e) {
-				error("REMOVE", "ReflectionException error", e);
+				logger.error("REMOVE", "ReflectionException error", e);
 			}
 			return false;
 		}
 	}
 
-	public static class Insert extends TaskAction {
+	public static class Insert extends ModelTaskAction {
 		protected int at;
 
-		public TaskAction init (Task target, Task task, int at) {
+		public ModelTaskAction init (Task target, Task task, int at) {
 			super.init(target, task);
 			if (at < 0)
 				throw new IllegalArgumentException("at cannot be < 0, is " + at);
@@ -104,7 +94,7 @@ abstract class TaskAction implements Pool.Poolable {
 
 		@Override boolean execute () {
 			try {
-				log("INSERT", task + " to " + target + " at " + at);
+				logger.log("INSERT", task + " to " + target + " at " + at);
 				// we need to check it task is in target before we add, as that will happen on init
 				if (target instanceof BranchTask) {
 					Field field = ClassReflection.getDeclaredField(BranchTask.class, "children");
@@ -112,7 +102,7 @@ abstract class TaskAction implements Pool.Poolable {
 					Array children = (Array)field.get(target);
 					// disallow if out of bounds,  allow to insert if empty
 					if (at > children.size && at > 0) {
-						error("INSERT", "cannot insert " + task + " to " + target + " at " + at + " as its out of range");
+						logger.error("INSERT", "cannot insert " + task + " to " + target + " at " + at + " as its out of range");
 						return false;
 					}
 					if (!children.contains(task, true)) {
@@ -123,7 +113,8 @@ abstract class TaskAction implements Pool.Poolable {
 							children.insert(at, task);
 						}
 					} else {
-						error("INSERT", "cannot insert " + task + " to " + target + " at " + at + ", target already contains task");
+						logger.error("INSERT",
+							"cannot insert " + task + " to " + target + " at " + at + ", target already contains task");
 						return false;
 					}
 					return true;
@@ -136,13 +127,13 @@ abstract class TaskAction implements Pool.Poolable {
 						field.set(target, task);
 						return true;
 					} else {
-						error("INSERT", "cannot insert " + task + " to " + target + " as its a decorator");
+						logger.error("INSERT", "cannot insert " + task + " to " + target + " as its a decorator");
 					}
 				} else {
-					error("INSERT", "cannot insert " + task + " to " + target + " as its a leaf");
+					logger.error("INSERT", "cannot insert " + task + " to " + target + " as its a leaf");
 				}
 			} catch (ReflectionException e) {
-				error("REMOVE", "ReflectionException error", e);
+				logger.error("REMOVE", "ReflectionException error", e);
 			}
 			return false;
 		}
@@ -153,14 +144,14 @@ abstract class TaskAction implements Pool.Poolable {
 		}
 	}
 
-	public static class Remove extends TaskAction {
+	public static class Remove extends ModelTaskAction {
 		@Override boolean execute () {
 			if (task.getStatus() == Task.Status.RUNNING) {
 				task.cancel();
 			}
 			// remove from bt
 			try {
-				log("REMOVE", task + " from " + target);
+				logger.log("REMOVE", task + " from " + target);
 				// we need to check it task is in target before we add, as that will happen on init
 				if (target instanceof BranchTask) {
 					Field field = ClassReflection.getDeclaredField(BranchTask.class, "children");
@@ -178,24 +169,24 @@ abstract class TaskAction implements Pool.Poolable {
 					}
 					return old != null;
 				} else {
-					error("REMOVE", "cannot remove " + task + " from " + target + " as its a leaf");
+					logger.error("REMOVE", "cannot remove " + task + " from " + target + " as its a leaf");
 				}
 			} catch (ReflectionException e) {
-				error("REMOVE", "ReflectionException error", e);
+				logger.error("REMOVE", "ReflectionException error", e);
 			}
 			return false;
 		}
 	}
 
-	public static TaskAction add (Task task, Task target) {
+	public static ModelTaskAction add (Task task, Task target) {
 		return new Add().init(task, target);
 	}
 
-	public static TaskAction insert (Task task, Task target, int at) {
+	public static ModelTaskAction insert (Task task, Task target, int at) {
 		return new Insert().init(task, target, at);
 	}
 
-	public static TaskAction remove (Task task, Task target) {
+	public static ModelTaskAction remove (Task task, Task target) {
 		return new Remove().init(task, target);
 	}
 }

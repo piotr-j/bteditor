@@ -1,6 +1,5 @@
 package io.piotrjastrzebski.bteditor.core.view;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ai.utils.random.*;
 import com.badlogic.gdx.graphics.Color;
@@ -13,12 +12,23 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Constructor;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
+import io.piotrjastrzebski.bteditor.core.BehaviourTreeEditor;
+import io.piotrjastrzebski.bteditor.core.Logger;
 
 /**
  * Created by PiotrJ on 06/10/15.
  */
-public class AttrFieldEdit {
+class AttrFieldEdit {
 	private final static String TAG = AttrFieldEdit.class.getSimpleName();
+	protected static Logger logger = BehaviourTreeEditor.NULL_LOGGER;
+	protected static void setLogger (Logger logger) {
+		if (logger == null) {
+			AttrFieldEdit.logger = BehaviourTreeEditor.NULL_LOGGER;
+		} else {
+			AttrFieldEdit.logger = logger;
+		}
+	}
+
 	private static TextField.TextFieldFilter digitFieldFilter = new TextField.TextFieldFilter.DigitsOnlyFilter();
 	private static TextField.TextFieldFilter digitPeriodFieldFilter = new TextField.TextFieldFilter() {
 		@Override public boolean acceptChar (TextField textField, char c) {
@@ -45,7 +55,7 @@ public class AttrFieldEdit {
 		} if (Distribution.class.isAssignableFrom(fType)) {
 			return AttrFieldEdit.distEditField(object, field, required, skin);
 		} else {
-			Gdx.app.error(TAG, "Not supported field type " + fType + " in " + object);
+			logger.error(TAG, "Not supported field type " + fType + " in " + object);
 			return null;
 		}
 	}
@@ -65,7 +75,7 @@ public class AttrFieldEdit {
 				try {
 					field.set(object, val);
 				} catch (ReflectionException e) {
-					Gdx.app.error("Float validator", "Failed to set field " + field + " to " + val, e);
+					logger.error("Float validator", "Failed to set field " + field + " to " + val, e);
 				}
 			}
 		});
@@ -86,7 +96,7 @@ public class AttrFieldEdit {
 				try {
 					field.set(object, val);
 				} catch (ReflectionException e) {
-					Gdx.app.error("Float validator", "Failed to set field " + field + " to " + val, e);
+					logger.error("Float validator", "Failed to set field " + field + " to " + val, e);
 				}
 			}
 		});
@@ -107,7 +117,7 @@ public class AttrFieldEdit {
 				try {
 					field.set(object, val);
 				} catch (ReflectionException e) {
-					Gdx.app.error("Float validator", "Failed to set field " + field + " to " + val, e);
+					logger.error("Float validator", "Failed to set field " + field + " to " + val, e);
 				}
 			}
 		});
@@ -128,7 +138,7 @@ public class AttrFieldEdit {
 				try {
 					field.set(object, val);
 				} catch (ReflectionException e) {
-					Gdx.app.error("Float validator", "Failed to set field " + field + " to " + val, e);
+					logger.error("Float validator", "Failed to set field " + field + " to " + val, e);
 				}
 			}
 		});
@@ -147,7 +157,7 @@ public class AttrFieldEdit {
 					try {
 						field.set(object, text);
 					} catch (ReflectionException e) {
-						Gdx.app.error("String validator", "Failed to set field " + field + " to " + text, e);
+						logger.error("String validator", "Failed to set field " + field + " to " + text, e);
 					}
 				}
 			}
@@ -167,7 +177,7 @@ public class AttrFieldEdit {
 				try {
 					field.set(object, selected);
 				} catch (ReflectionException e) {
-					Gdx.app.error("Enum validator", "Failed to set field " + field + " to " + selected, e);
+					logger.error("Enum validator", "Failed to set field " + field + " to " + selected, e);
 				}
 			}
 		});
@@ -184,7 +194,7 @@ public class AttrFieldEdit {
 				try {
 					field.set(object, selected);
 				} catch (ReflectionException e) {
-					Gdx.app.error("Boolean validator", "Failed to set field " + field + " to " + selected, e);
+					logger.error("Boolean validator", "Failed to set field " + field + " to " + selected, e);
 				}
 			}
 		});
@@ -254,7 +264,7 @@ public class AttrFieldEdit {
 		}
 
 		if (actual == null) {
-			Gdx.app.error(text, "Wrapper missing for " + dist);
+			logger.error(text, "Wrapper missing for " + dist);
 			return;
 		}
 		actual.set(dist);
@@ -268,7 +278,7 @@ public class AttrFieldEdit {
 				try {
 					field.set(object, selected.create());
 				} catch (ReflectionException e) {
-					Gdx.app.error("Boolean validator", "Failed to set field " + field + " to " + selected, e);
+					logger.error("Boolean validator", "Failed to set field " + field + " to " + selected, e);
 				}
 				fields.clear();
 				selected.createEditFields(fields, skin);
@@ -293,7 +303,7 @@ public class AttrFieldEdit {
 		}
 
 		if (wrapper == null) {
-			Gdx.app.error(text, "Wrapper missing for " + dist);
+			logger.error(text, "Wrapper missing for " + dist);
 			return;
 		}
 		wrapper.set(dist);
@@ -331,7 +341,7 @@ public class AttrFieldEdit {
 		// if not we cant pick the type, just edit existing distribution
 		Class<? extends DWrapper> wrapper = getWrapperFor(type);
 		if (wrapper == null) {
-			Gdx.app.error(TAG, "Wrapper for " + type + " not found!");
+			logger.error(TAG, "Wrapper for " + type + " not found!");
 			return cont;
 		}
 		createSimpleDistEditField(type.getSimpleName(), object, field, dist, cont, skin, wrapper);

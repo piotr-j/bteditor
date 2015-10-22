@@ -25,6 +25,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kotcrab.vis.ui.VisUI;
 import io.piotrjastrzebski.bteditor.core.BehaviourTreeEditor;
+import io.piotrjastrzebski.bteditor.core.Logger;
 import io.piotrjastrzebski.bteditor.core.dog.*;
 import org.lwjgl.opengl.Display;
 
@@ -73,6 +74,19 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor {
 		tree.setObject(new Dog("Dog A"));
 
 		editor = new BehaviourTreeEditor<>(skin, skin.getDrawable("white"));
+//		editor.setLogger(new Logger() {
+//			@Override public void log (String tag, String msg) {
+//				Gdx.app.log(tag, msg);
+//			}
+//
+//			@Override public void error (String tag, String msg) {
+//				Gdx.app.error(tag, msg);
+//			}
+//
+//			@Override public void error (String tag, String msg, Exception e) {
+//				Gdx.app.error(tag, msg, e);
+//			}
+//		});
 		editorWindow.add(editor).expand().fill();
 
 		editor.initialize(tree);

@@ -14,20 +14,21 @@ import com.badlogic.gdx.scenes.scene2d.ui.Tree;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Pool;
-import io.piotrjastrzebski.bteditor.core.model.BTTask;
+import io.piotrjastrzebski.bteditor.core.model.ModelTask;
+import io.piotrjastrzebski.bteditor.core.view.ViewTree.DropPoint;
 
 /**
  * Created by EvilEntity on 10/10/2015.
  */
 public class ViewTask<E> extends Tree.Node implements Pool.Poolable {
-	protected BTTask<E> task;
+	protected ModelTask<E> task;
 	protected Label name;
 	protected Label status;
 	protected DragAndDrop dad;
 	protected Table container;
 
-	protected BTESource source;
-	protected BTETarget target;
+	protected ViewSource source;
+	protected ViewTarget target;
 
 	protected Actor separator;
 	protected Drawable containerBG;
@@ -52,15 +53,15 @@ public class ViewTask<E> extends Tree.Node implements Pool.Poolable {
 		containerBG = bg;
 		container.setColor(Color.GREEN);
 
-		source = new BTESource(getActor(), owner.getPayloadPool()) {
-			@Override public BTEPayload dragStart (InputEvent event, float x, float y, int pointer, BTEPayload out) {
+		source = new ViewSource(getActor(), owner.getPayloadPool()) {
+			@Override public ViewPayload dragStart (InputEvent event, float x, float y, int pointer, ViewPayload out) {
 				out.setAsMove(ViewTask.this);
 				return out;
 			}
 		};
 
-		target = new BTETarget(getActor()) {
-			@Override public boolean onDrag (BTESource source, BTEPayload payload, float x, float y, int pointer) {
+		target = new ViewTarget(getActor()) {
+			@Override public boolean onDrag (ViewSource source, ViewPayload payload, float x, float y, int pointer) {
 				Actor actor = getActor();
 				DropPoint dropPoint = getDropPoint(actor, y);
 				boolean isValid = owner.canAddTo(payload.getViewTask(), ViewTask.this, dropPoint);
@@ -68,19 +69,19 @@ public class ViewTask<E> extends Tree.Node implements Pool.Poolable {
 				return isValid;
 			}
 
-			@Override public void onDrop (BTESource source, BTEPayload payload, float x, float y, int pointer) {
+			@Override public void onDrop (ViewSource source, ViewPayload payload, float x, float y, int pointer) {
 				// TODO execute proper action
 				DropPoint dropPoint = getDropPoint(getActor(), y);
 				owner.addTo(payload.getViewTask(), ViewTask.this, dropPoint);
 			}
 
-			@Override public void onReset (BTESource source, BTEPayload payload) {
+			@Override public void onReset (ViewSource source, ViewPayload payload) {
 				updateSeparator(null, true, separator, container);
 			}
 		};
 	}
 
-	public ViewTask<E> init (BTTask<E> task) {
+	public ViewTask<E> init (ModelTask<E> task) {
 		this.task = task;
 		dad.addSource(source);
 		dad.addTarget(target);
@@ -153,7 +154,7 @@ public class ViewTask<E> extends Tree.Node implements Pool.Poolable {
 		return parent.getChildren().indexOf(this, true);
 	}
 
-	public BTTask<E> getModelTask () {
+	public ModelTask<E> getModelTask () {
 		return task;
 	}
 

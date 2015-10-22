@@ -16,15 +16,15 @@ import static org.junit.Assert.*;
 /**
  * Created by PiotrJ on 15/10/15.
  */
-public class BTModelTest {
-	BTModel<Dog> model;
+public class ModelTreeTest {
+	ModelTree<Dog> model;
 	BehaviorTree<Dog> tree;
-	BTTask<Dog> root;
+	ModelTask<Dog> root;
 
 	@Before public void setUp () throws Exception {
 		tree = new BehaviorTree<>(createDogBehavior());
 		tree.setObject(new Dog("Dog A"));
-		model = new BTModel<>();
+		model = new ModelTree<>();
 		model.init(tree);
 		root = model.getRootNode();
 	}
@@ -35,7 +35,7 @@ public class BTModelTest {
 
 	@Test public void testInit () {
 		assertTrue(model.validate());
-		BTTask<Dog> root = model.getRootNode();
+		ModelTask<Dog> root = model.getRootNode();
 		Task<Dog> task = root.getChild(0).getTask();
 		assertEquals(Task.Status.FRESH, task.getStatus());
 		model.step();
@@ -46,7 +46,7 @@ public class BTModelTest {
 		boolean valid = model.checkAdd(root, BarkTask.class);
 		assertTrue(valid);
 
-		BTTask<Dog> seqBark = root.getChild(1).getChild(0);
+		ModelTask<Dog> seqBark = root.getChild(1).getChild(0);
 		valid = model.checkAdd(seqBark, BarkTask.class);
 		assertFalse(valid);
 	}
@@ -55,7 +55,7 @@ public class BTModelTest {
 		// add stuff, verify its there and tree is valid
 		CareTask careTask = new CareTask();
 
-		BTTask<Dog> parallel = root.getChild(0);
+		ModelTask<Dog> parallel = root.getChild(0);
 		model.add(parallel, careTask);
 
 		assertEquals(careTask, parallel.getChild(2).getTask());
@@ -66,7 +66,7 @@ public class BTModelTest {
 		// add invalid stuff, verify that tree is invalid
 		CareTask careTask = new CareTask();
 
-		BTTask<Dog> fail = root.getChild(0).getChild(1);
+		ModelTask<Dog> fail = root.getChild(0).getChild(1);
 		model.add(fail, careTask);
 		assertEquals(2, fail.getChildCount());
 		assertFalse(model.isValid());
@@ -76,7 +76,7 @@ public class BTModelTest {
 		// add invalid stuff, verify that tree is invalid
 		CareTask careTask = new CareTask();
 
-		BTTask<Dog> care = root.getChild(0).getChild(0);
+		ModelTask<Dog> care = root.getChild(0).getChild(0);
 		model.add(care, careTask);
 		assertEquals(0, care.getChildCount());
 		assertTrue(model.isValid());
@@ -86,7 +86,7 @@ public class BTModelTest {
 		// insert stuff, verify its there
 		CareTask careTask = new CareTask();
 
-		BTTask<Dog> seq = root.getChild(1);
+		ModelTask<Dog> seq = root.getChild(1);
 		model.insert(seq, careTask, 0);
 		assertEquals(3, seq.getChildCount());
 		assertEquals(careTask, seq.getChild(0).getTask());
@@ -96,7 +96,7 @@ public class BTModelTest {
 		// insert stuff, verify its there
 		CareTask careTask = new CareTask();
 
-		BTTask<Dog> seq = root.getChild(1);
+		ModelTask<Dog> seq = root.getChild(1);
 		model.insert(seq, careTask, 1);
 		assertEquals(3, seq.getChildCount());
 		assertEquals(careTask, seq.getChild(1).getTask());
@@ -106,7 +106,7 @@ public class BTModelTest {
 		// insert stuff, verify its there
 		CareTask careTask = new CareTask();
 
-		BTTask<Dog> seq = root.getChild(1);
+		ModelTask<Dog> seq = root.getChild(1);
 		model.insert(seq, careTask, 2);
 		assertEquals(3, seq.getChildCount());
 		assertEquals(careTask, seq.getChild(2).getTask());
@@ -116,8 +116,8 @@ public class BTModelTest {
 		// insert invalid stuff, verify its not there
 		CareTask careTask = new CareTask();
 
-		BTTask<Dog> fail = root.getChild(0).getChild(1);
-		assertEquals(TaskType.DECORATOR, fail.getType());
+		ModelTask<Dog> fail = root.getChild(0).getChild(1);
+		assertEquals(ModelTaskType.DECORATOR, fail.getType());
 
 		model.insert(fail, careTask, 0);
 		assertEquals(2, fail.getChildCount());
@@ -128,8 +128,8 @@ public class BTModelTest {
 		// insert invalid stuff, verify its not there
 		CareTask careTask = new CareTask();
 
-		BTTask<Dog> fail = root.getChild(0).getChild(1);
-		assertEquals(TaskType.DECORATOR, fail.getType());
+		ModelTask<Dog> fail = root.getChild(0).getChild(1);
+		assertEquals(ModelTaskType.DECORATOR, fail.getType());
 
 		model.insert(fail, careTask, 1);
 		assertEquals(2, fail.getChildCount());
@@ -145,8 +145,8 @@ public class BTModelTest {
 
 	@Test public void removeExistingValid () {
 		// remove stuff, verify its not there
-		BTTask<Dog> fail = root.getChild(0).getChild(1);
-		BTTask<Dog> removed = model.remove(fail);
+		ModelTask<Dog> fail = root.getChild(0).getChild(1);
+		ModelTask<Dog> removed = model.remove(fail);
 		assertNotNull(removed);
 		assertTrue(model.isValid());
 		assertEquals(1, root.getChild(0).getChildCount());
@@ -154,9 +154,9 @@ public class BTModelTest {
 
 	@Test public void removeExistingInvalid () {
 		// remove stuff, verify its not there
-		BTTask<Dog> fail = root.getChild(0).getChild(1);
-		BTTask<Dog> rest = fail.getChild(0);
-		BTTask<Dog> removed = model.remove(rest);
+		ModelTask<Dog> fail = root.getChild(0).getChild(1);
+		ModelTask<Dog> rest = fail.getChild(0);
+		ModelTask<Dog> removed = model.remove(rest);
 		assertNotNull(removed);
 		assertFalse(model.isValid());
 		assertEquals(0, fail.getChildCount());
@@ -164,7 +164,7 @@ public class BTModelTest {
 
 	@Test public void removeNotExisting () {
 		// remove stuff, verify its not there
-		BTTask<Dog> remove = model.remove(new BarkTask());
+		ModelTask<Dog> remove = model.remove(new BarkTask());
 		assertNull(remove);
 		assertTrue(model.isValid());
 	}

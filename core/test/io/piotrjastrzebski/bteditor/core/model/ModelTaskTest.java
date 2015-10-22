@@ -25,15 +25,15 @@ import static org.junit.Assert.*;
  * <p>
  * Created by PiotrJ on 15/10/15.
  */
-public class BTTaskTest {
+public class ModelTaskTest {
 	Selector<Dog> selector;
 	BarkTask bark;
 	WalkTask walk;
 	CareTask care;
 	AlwaysFail<Dog> alwaysFail;
 
-	BTModel<Dog> model;
-	BTTask<Dog> root;
+	ModelTree<Dog> model;
+	ModelTask<Dog> root;
 
 	@Before public void setUp () throws Exception {
 		selector = new Selector<>();
@@ -42,8 +42,8 @@ public class BTTaskTest {
 		walk = new WalkTask();
 		care = new CareTask();
 
-		model = new BTModel<>();
-		root = new BTTask<>(model);
+		model = new ModelTree<>();
+		root = new ModelTask<>(model);
 	}
 
 	@After public void tearDown () throws Exception {
@@ -65,7 +65,7 @@ public class BTTaskTest {
 	@Test public void initSimpleValid () {
 		root.init(care);
 		assertEquals(care, root.getTask());
-		assertEquals(TaskType.LEAF, root.getType());
+		assertEquals(ModelTaskType.LEAF, root.getType());
 		assertEquals(0, root.getChildCount());
 		assertTrue(root.isValid());
 		assertFalse(model.isDirty());
@@ -74,7 +74,7 @@ public class BTTaskTest {
 	@Test public void initSimpleInvalidDecorator () {
 		root.init(alwaysFail);
 		assertEquals(alwaysFail, root.getTask());
-		assertEquals(TaskType.DECORATOR, root.getType());
+		assertEquals(ModelTaskType.DECORATOR, root.getType());
 		assertEquals(0, root.getChildCount());
 		assertFalse(root.isValid());
 		assertFalse(model.isDirty());
@@ -83,7 +83,7 @@ public class BTTaskTest {
 	@Test public void initSimpleInvalidBranch () {
 		root.init(selector);
 		assertEquals(selector, root.getTask());
-		assertEquals(TaskType.BRANCH, root.getType());
+		assertEquals(ModelTaskType.BRANCH, root.getType());
 		assertEquals(0, root.getChildCount());
 		assertFalse(root.isValid());
 		assertFalse(model.isDirty());
@@ -96,28 +96,28 @@ public class BTTaskTest {
 
 		root.init(selector);
 		assertEquals(selector, root.getTask());
-		assertEquals(TaskType.BRANCH, root.getType());
+		assertEquals(ModelTaskType.BRANCH, root.getType());
 		assertEquals(2, root.getChildCount());
 		assertTrue(root.isValid());
 		assertTrue(model.isDirty());
 
-		BTTask<Dog> careChild = root.getChild(0);
-		BTTask<Dog> failChild = root.getChild(1);
+		ModelTask<Dog> careChild = root.getChild(0);
+		ModelTask<Dog> failChild = root.getChild(1);
 
 		assertEquals(care, careChild.getTask());
-		assertEquals(TaskType.LEAF, careChild.getType());
+		assertEquals(ModelTaskType.LEAF, careChild.getType());
 		assertEquals(0, careChild.getChildCount());
 		assertTrue(careChild.isValid());
 
 		assertEquals(alwaysFail, failChild.getTask());
-		assertEquals(TaskType.DECORATOR, failChild.getType());
+		assertEquals(ModelTaskType.DECORATOR, failChild.getType());
 		assertEquals(1, failChild.getChildCount());
 		assertTrue(failChild.isValid());
 
-		BTTask<Dog> barkChild = failChild.getChild(0);
+		ModelTask<Dog> barkChild = failChild.getChild(0);
 
 		assertEquals(bark, barkChild.getTask());
-		assertEquals(TaskType.LEAF, barkChild.getType());
+		assertEquals(ModelTaskType.LEAF, barkChild.getType());
 		assertEquals(0, barkChild.getChildCount());
 		assertTrue(barkChild.isValid());
 	}
@@ -128,20 +128,20 @@ public class BTTaskTest {
 
 		root.init(selector);
 		assertEquals(selector, root.getTask());
-		assertEquals(TaskType.BRANCH, root.getType());
+		assertEquals(ModelTaskType.BRANCH, root.getType());
 		assertEquals(2, root.getChildCount());
 		assertFalse(root.isValid());
 
-		BTTask<Dog> careChild = root.getChild(0);
-		BTTask<Dog> failChild = root.getChild(1);
+		ModelTask<Dog> careChild = root.getChild(0);
+		ModelTask<Dog> failChild = root.getChild(1);
 
 		assertEquals(care, careChild.getTask());
-		assertEquals(TaskType.LEAF, careChild.getType());
+		assertEquals(ModelTaskType.LEAF, careChild.getType());
 		assertEquals(0, careChild.getChildCount());
 		assertTrue(careChild.isValid());
 
 		assertEquals(alwaysFail, failChild.getTask());
-		assertEquals(TaskType.DECORATOR, failChild.getType());
+		assertEquals(ModelTaskType.DECORATOR, failChild.getType());
 		assertEquals(0, failChild.getChildCount());
 		assertFalse(failChild.isValid());
 	}
@@ -151,15 +151,15 @@ public class BTTaskTest {
 
 		root.init(alwaysFail);
 		assertEquals(alwaysFail, root.getTask());
-		assertEquals(TaskType.DECORATOR, root.getType());
+		assertEquals(ModelTaskType.DECORATOR, root.getType());
 		assertEquals(1, root.getChildCount());
 		assertFalse(root.isValid());
 		assertTrue(model.isDirty());
 
-		BTTask<Dog> selChild = root.getChild(0);
+		ModelTask<Dog> selChild = root.getChild(0);
 
 		assertEquals(selector, selChild.getTask());
-		assertEquals(TaskType.BRANCH, selChild.getType());
+		assertEquals(ModelTaskType.BRANCH, selChild.getType());
 		assertEquals(0, selChild.getChildCount());
 		assertFalse(selChild.isValid());
 	}
@@ -167,7 +167,7 @@ public class BTTaskTest {
 	@Test public void addValid () {
 		selector.addChild(care);
 		root.init(selector);
-		BTTask<Dog> tBark = model.obtain();
+		ModelTask<Dog> tBark = model.obtain();
 		tBark.init(bark);
 
 		root.addChild(tBark);
@@ -191,7 +191,7 @@ public class BTTaskTest {
 	@Test public void addInvalid () {
 		root.init(alwaysFail);
 
-		BTTask<Dog> tBark = model.obtain();
+		ModelTask<Dog> tBark = model.obtain();
 		tBark.init(bark);
 
 		root.addChild(tBark);
@@ -215,10 +215,10 @@ public class BTTaskTest {
 		selector.addChild(care);
 		root.init(selector);
 
-		BTTask<Dog> tFail = model.obtain();
+		ModelTask<Dog> tFail = model.obtain();
 		tFail.init(alwaysFail);
 
-		BTTask<Dog> tBark = model.obtain();
+		ModelTask<Dog> tBark = model.obtain();
 		tBark.init(bark);
 		tFail.addChild(tBark);
 
@@ -291,7 +291,7 @@ public class BTTaskTest {
 		assertTrue(root.isValid());
 		assertFalse(model.isDirty());
 
-		BTTask<Dog> tSel = root.getChild(0);
+		ModelTask<Dog> tSel = root.getChild(0);
 		root.removeChild(tSel);
 
 		assertFalse(root.isValid());
@@ -315,10 +315,10 @@ public class BTTaskTest {
 		assertTrue(root.isValid());
 		assertFalse(model.isDirty());
 		assertEquals(1, root.getChildCount());
-		BTTask<Dog> tSel = root.getChild(0);
+		ModelTask<Dog> tSel = root.getChild(0);
 		assertEquals(2, tSel.getChildCount());
 
-		BTTask<Dog> tBark = tSel.getChild(0);
+		ModelTask<Dog> tBark = tSel.getChild(0);
 		assertEquals(bark, tBark.getTask());
 
 		tSel.removeChild(tBark);

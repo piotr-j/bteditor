@@ -7,7 +7,7 @@ import com.badlogic.gdx.ai.btree.Task;
 /**
  * Created by EvilEntity on 14/10/2015.
  */
-public enum TaskType {
+public enum ModelTaskType {
 	BRANCH("Branch", 1, Integer.MAX_VALUE),
 	DECORATOR("Decorator", 1, 1),
 	LEAF("Leaf", 0, 0);
@@ -16,14 +16,14 @@ public enum TaskType {
 	private int minChildren;
 	private int maxChildren;
 
-	TaskType (String name, int min, int max) {
+	ModelTaskType (String name, int min, int max) {
 		this.name = name;
 		minChildren = min;
 		maxChildren = max;
 	}
 
 	/**
-	 * Check if this count is a valid for this {@link TaskType}
+	 * Check if this count is a valid for this {@link ModelTaskType}
 	 *
 	 * @param count count to check
 	 * @return if count is within min and max
@@ -35,14 +35,14 @@ public enum TaskType {
 	/**
 	 * Get TaskType for given Task
 	 */
-	public static TaskType valueFor (Task task) {
+	public static ModelTaskType valueFor (Task task) {
 		if (task instanceof Decorator) {
-			return TaskType.DECORATOR;
+			return ModelTaskType.DECORATOR;
 		}
 		if (task instanceof BranchTask) {
-			return TaskType.BRANCH;
+			return ModelTaskType.BRANCH;
 		}
-		return TaskType.LEAF;
+		return ModelTaskType.LEAF;
 	}
 
 	@Override public String toString () {

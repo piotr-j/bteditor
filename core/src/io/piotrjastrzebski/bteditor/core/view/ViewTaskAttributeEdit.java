@@ -14,11 +14,11 @@ import com.badlogic.gdx.utils.reflect.ReflectionException;
  * View for attribute editing on tasks
  * Created by PiotrJ on 21/10/15.
  */
-public class AttrEdit extends Table {
+public class ViewTaskAttributeEdit extends Table {
 	private Skin skin;
 	private Label name;
 
-	public AttrEdit (Skin skin) {
+	public ViewTaskAttributeEdit (Skin skin) {
 		super();
 		this.skin = skin;
 		name = new Label("<?>", skin);

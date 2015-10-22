@@ -7,16 +7,16 @@ import com.badlogic.gdx.utils.Pool;
 /**
  * Created by PiotrJ on 15/10/15.
  */
-public class BTTask<E> implements Pool.Poolable {
+public class ModelTask<E> implements Pool.Poolable {
 	private Task<E> task;
-	private TaskType type;
-	private Array<BTTask<E>> children;
+	private ModelTaskType type;
+	private Array<ModelTask<E>> children;
 	private boolean isValid;
-	private BTModel<E> model;
-	private BTTask<E> parent;
+	private ModelTree<E> model;
+	private ModelTask<E> parent;
 	private ValidChangeListener<E> changeListener;
 
-	public BTTask (BTModel<E> model) {
+	public ModelTask (ModelTree<E> model) {
 		this.model = model;
 		children = new Array<>();
 	}
@@ -27,7 +27,7 @@ public class BTTask<E> implements Pool.Poolable {
 		if (this.task != null)
 			reset();
 		this.task = task;
-		type = TaskType.valueFor(task);
+		type = ModelTaskType.valueFor(task);
 		for (int i = 0; i < task.getChildCount(); i++) {
 			addChild(task.getChild(i));
 		}
@@ -35,39 +35,39 @@ public class BTTask<E> implements Pool.Poolable {
 	}
 
 	public int addChild (Task<E> task) {
-		BTTask<E> child = model.obtain();
+		ModelTask<E> child = model.obtain();
 		child.init(task);
 		return addChild(child);
 	}
 
-	public int addChild (BTTask<E> child) {
+	public int addChild (ModelTask<E> child) {
 		child.parent = this;
 		children.add(child);
-		model.addTaskAction(TaskAction.add(task, child.getTask()));
+		model.addTaskAction(ModelTaskAction.add(task, child.getTask()));
 		validate();
 		return children.size - 1;
 	}
 
 	public int insertChild (int index, Task<E> task) {
-		BTTask<E> child = model.obtain();
+		ModelTask<E> child = model.obtain();
 		child.init(task);
 		return insertChild(index, child);
 	}
 
-	public int insertChild (int index, BTTask<E> child) {
+	public int insertChild (int index, ModelTask<E> child) {
 		child.parent = this;
 		children.insert(index, child);
-		model.addTaskAction(TaskAction.insert(task, child.getTask(), index));
+		model.addTaskAction(ModelTaskAction.insert(task, child.getTask(), index));
 		validate();
 		return children.size - 1;
 	}
 
-	public BTTask<E> removeChild (int i) {
+	public ModelTask<E> removeChild (int i) {
 		return removeChild(getChild(i));
 	}
 
-	public BTTask<E> removeChild (BTTask<E> child) {
-		model.addTaskAction(TaskAction.remove(task, child.getTask()));
+	public ModelTask<E> removeChild (ModelTask<E> child) {
+		model.addTaskAction(ModelTaskAction.remove(task, child.getTask()));
 		children.removeValue(child, true);
 		child.parent = null;
 		validate();
@@ -77,7 +77,7 @@ public class BTTask<E> implements Pool.Poolable {
 	public boolean validate () {
 		// check if we have correct amount of children
 		boolean valid = type.isValid(children.size);
-		for (BTTask<E> child : children) {
+		for (ModelTask<E> child : children) {
 			if (!child.validate()) {
 				valid = false;
 			}
@@ -95,11 +95,11 @@ public class BTTask<E> implements Pool.Poolable {
 		}
 	}
 
-	protected BTTask<E> find (Task<E> target) {
+	protected ModelTask<E> find (Task<E> target) {
 		if (task == target)
 			return this;
-		for (BTTask<E> child : children) {
-			BTTask<E> found = child.find(target);
+		for (ModelTask<E> child : children) {
+			ModelTask<E> found = child.find(target);
 			if (found != null)
 				return found;
 		}
@@ -119,7 +119,7 @@ public class BTTask<E> implements Pool.Poolable {
 
 	@Override public void reset () {
 		// todo free pooled
-		for (BTTask<E> child : children) {
+		for (ModelTask<E> child : children) {
 			model.free(child);
 		}
 		children.clear();
@@ -154,7 +154,7 @@ public class BTTask<E> implements Pool.Poolable {
 		return children.size;
 	}
 
-	public BTTask<E> getChild (int i) {
+	public ModelTask<E> getChild (int i) {
 		return children.get(i);
 	}
 
@@ -162,11 +162,11 @@ public class BTTask<E> implements Pool.Poolable {
 		return isValid;
 	}
 
-	public TaskType getType () {
+	public ModelTaskType getType () {
 		return type;
 	}
 
-	public BTTask<E> getParent () {
+	public ModelTask<E> getParent () {
 		return parent;
 	}
 
@@ -175,6 +175,6 @@ public class BTTask<E> implements Pool.Poolable {
 	}
 
 	protected interface ValidChangeListener<E> {
-		void validChanged (BTTask<E> task, boolean isValid);
+		void validChanged (ModelTask<E> task, boolean isValid);
 	}
 }

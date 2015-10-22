@@ -8,8 +8,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Array;
-import io.piotrjastrzebski.bteditor.core.model.BTModel;
-import io.piotrjastrzebski.bteditor.core.view.AttrEdit;
+import io.piotrjastrzebski.bteditor.core.model.ModelTree;
+import io.piotrjastrzebski.bteditor.core.view.ViewTaskAttributeEdit;
 import io.piotrjastrzebski.bteditor.core.view.ViewTask;
 import io.piotrjastrzebski.bteditor.core.view.ViewTree;
 
@@ -21,15 +21,21 @@ import io.piotrjastrzebski.bteditor.core.view.ViewTree;
  * Created by PiotrJ on 20/06/15.
  */
 public class BehaviourTreeEditor<E> extends Table implements ViewTree.ViewTaskSelectedListener<E> {
+	public static Logger NULL_LOGGER = new Logger() {
+		@Override public void log (String tag, String msg) {}
+		@Override public void error (String tag, String msg) {}
+		@Override public void error (String tag, String msg, Exception e) {}
+	};
 	private Skin skin;
 
 	private Array<TaskNode> nodes = new Array<>();
 	private Table tasks;
 	private Label trash;
 
-	private BTModel<E> model;
+	private ModelTree<E> model;
 	private ViewTree<E> view;
-	private AttrEdit edit;
+	private ViewTaskAttributeEdit edit;
+	private Logger logger = NULL_LOGGER;
 
 	public BehaviourTreeEditor (Skin skin, Drawable white) {
 		this(skin, white, 1);
@@ -38,12 +44,12 @@ public class BehaviourTreeEditor<E> extends Table implements ViewTree.ViewTaskSe
 	public BehaviourTreeEditor (Skin skin, Drawable white, float scale) {
 		super();
 		this.skin = skin;
-		model = new BTModel<>();
+		model = new ModelTree<>();
 		debugAll();
 		trash = new Label("Trash -> [_]", skin);
 		add(trash).colspan(3);
 		row();
-		edit = new AttrEdit(skin);
+		edit = new ViewTaskAttributeEdit(skin);
 		view = new ViewTree<>(skin, white, scale);
 		view.addListener(this);
 		view.addTrash(trash);
@@ -56,6 +62,16 @@ public class BehaviourTreeEditor<E> extends Table implements ViewTree.ViewTaskSe
 		ScrollPane pane = new ScrollPane(tasks);
 		paneCont.add(pane);
 		add(paneCont).expand().fill().top();
+	}
+
+	public void setLogger (Logger logger) {
+		if (logger == null) {
+			this.logger = NULL_LOGGER;
+		} else {
+			this.logger = logger;
+		}
+		model.setLogger(logger);
+		view.setLogger(logger);
 	}
 
 	/**
@@ -108,7 +124,7 @@ public class BehaviourTreeEditor<E> extends Table implements ViewTree.ViewTaskSe
 		tasks.add(node).row();
 	}
 
-	public BTModel<E> getModel () {
+	public ModelTree<E> getModel () {
 		return model;
 	}
 

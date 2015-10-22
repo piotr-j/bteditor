@@ -1,6 +1,5 @@
 package io.piotrjastrzebski.bteditor.core.view;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -16,22 +15,24 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
-import io.piotrjastrzebski.bteditor.core.model.BTModel;
-import io.piotrjastrzebski.bteditor.core.model.BTModelListener;
-import io.piotrjastrzebski.bteditor.core.model.BTTask;
+import io.piotrjastrzebski.bteditor.core.BehaviourTreeEditor;
+import io.piotrjastrzebski.bteditor.core.Logger;
+import io.piotrjastrzebski.bteditor.core.model.ModelTree;
+import io.piotrjastrzebski.bteditor.core.model.ModelTask;
 
 /**
  * Created by EvilEntity on 10/10/2015.
  */
-public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<E> {
+public class ViewTree<E> extends Tree implements Pool.Poolable, ModelTree.Listener<E> {
 	private static final String TAG = ViewTree.class.getSimpleName();
 	protected Pool<ViewTask<E>> vtPool;
-	protected BTModel<E> model;
+	protected ModelTree<E> model;
 
 	protected DragAndDrop dad;
 	private Actor separator;
-	private Pool<BTEPayload> payloadPool;
+	private Pool<ViewPayload> payloadPool;
 	private boolean shortStatuses;
+	private Logger logger = BehaviourTreeEditor.NULL_LOGGER;
 
 	public ViewTree (Skin skin, Drawable white) {
 		this(skin, white, 1);
@@ -47,9 +48,9 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 		this.separator.setVisible(false);
 		addActor(separator);
 
-		payloadPool = new Pool<BTEPayload>() {
-			@Override protected BTEPayload newObject () {
-				return new BTEPayload(skin);
+		payloadPool = new Pool<ViewPayload>() {
+			@Override protected ViewPayload newObject () {
+				return new ViewPayload(skin);
 			}
 		};
 
@@ -88,12 +89,12 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 
 	ViewTask<E> viewRoot;
 
-	public void init (BTModel<E> model) {
+	public void init (ModelTree<E> model) {
 		if (this.model != null)
 			reset();
 		this.model = model;
 		model.addListener(this);
-		BTTask<E> root = model.getRootNode();
+		ModelTask<E> root = model.getRootNode();
 		add(viewRoot = initVT(root));
 		for (int i = 0; i < root.getChildCount(); i++) {
 			addViewTask(viewRoot, root.getChild(i));
@@ -101,7 +102,7 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 		expandAll();
 	}
 
-	protected void addViewTask (ViewTask<E> parent, BTTask<E> task) {
+	protected void addViewTask (ViewTask<E> parent, ModelTask<E> task) {
 		ViewTask<E> node = initVT(task);
 		parent.add(node);
 		for (int i = 0; i < task.getChildCount(); i++) {
@@ -109,7 +110,7 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 		}
 	}
 
-	protected ViewTask<E> initVT (BTTask<E> task) {
+	protected ViewTask<E> initVT (ModelTask<E> task) {
 		ViewTask<E> out = vtPool.obtain();
 		out.init(task);
 		return out;
@@ -151,20 +152,20 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 	 */
 	public void addSource (Actor source, final Class<? extends Task> task) {
 		if (classToTask.containsKey(task)) {
-			Gdx.app.log(TAG, "Task class already added: " + task);
+			logger.log(TAG, "Task class already added: " + task);
 			return;
 		}
 		try {
 			Task instance = ClassReflection.newInstance(task);
 			classToTask.put(task, instance);
 		} catch (ReflectionException e) {
-			Gdx.app.error(TAG, "Failed to instantience task " + task, e);
+			logger.error(TAG, "Failed to instantience task " + task, e);
 			return;
 		}
-		dad.addSource(new BTESource(source, getPayloadPool()) {
-			@Override public BTEPayload dragStart (InputEvent event, float x, float y, int pointer, BTEPayload out) {
+		dad.addSource(new ViewSource(source, getPayloadPool()) {
+			@Override public ViewPayload dragStart (InputEvent event, float x, float y, int pointer, ViewPayload out) {
 				// TODO should this create a node for this already?
-				BTTask<E> mt = model.obtain();
+				ModelTask<E> mt = model.obtain();
 				Task<E> eTask = model.getTaskLibrary().get(task);
 				mt.init(eTask);
 				ViewTask<E> vt = initVT(mt);
@@ -172,8 +173,8 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 				return out;
 			}
 
-			@Override public void onDragStop (InputEvent event, float x, float y, int pointer, BTEPayload payload,
-				BTETarget target) {
+			@Override public void onDragStop (InputEvent event, float x, float y, int pointer, ViewPayload payload,
+				ViewTarget target) {
 				ViewTask vt = payload.getViewTask();
 				// vt wasnt added
 				if (vt.getParent() == null) {
@@ -185,12 +186,12 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 	}
 
 	public void addTrash (Actor trash) {
-		dad.addTarget(new BTETarget(trash) {
-			@Override public boolean onDrag (BTESource source, BTEPayload payload, float x, float y, int pointer) {
-				return payload.hasTarget(BTEPayload.TARGET_TRASH);
+		dad.addTarget(new ViewTarget(trash) {
+			@Override public boolean onDrag (ViewSource source, ViewPayload payload, float x, float y, int pointer) {
+				return payload.hasTarget(ViewPayload.TARGET_TRASH);
 			}
 
-			@Override public void onDrop (BTESource source, BTEPayload payload, float x, float y, int pointer) {
+			@Override public void onDrop (ViewSource source, ViewPayload payload, float x, float y, int pointer) {
 				// TODO confirm?
 				trash(payload.getViewTask());
 			}
@@ -220,20 +221,20 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 	public void addTo (ViewTask<E> vt, ViewTask<E> target, DropPoint to) {
 		// TODO do we want to double check?
 		if (!canAddTo(vt, target, to)) {
-			Gdx.app.log(TAG, target + " cant be added to " + vt + " at " + to);
+			logger.log(TAG, target + " cant be added to " + vt + " at " + to);
 			return;
 		}
 		// TODO change model as well
 		// if the view task is already in the tree, remove it
 		vt.remove();
 
-		BTTask<E> toAdd = vt.getModelTask();
+		ModelTask<E> toAdd = vt.getModelTask();
 		if (toAdd.getParent() != null) {
 			model.remove(toAdd);
 		}
 
 		ViewTask<E> parent = (ViewTask<E>)target.getParent();
-		BTTask<E> targetMT = target.getModelTask();
+		ModelTask<E> targetMT = target.getModelTask();
 		switch (to) {
 		case ABOVE:
 			// insert vt before target
@@ -241,7 +242,7 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 				parent.insert(target.getIndexInParent(), vt);
 				model.insert(parent.getModelTask(), toAdd, targetMT.getIndexInParent());
 			} else {
-				Gdx.app.error(TAG, "Null parent in addTo above !" + target);
+				logger.error(TAG, "Null parent in addTo above !" + target);
 			}
 			break;
 		case MIDDLE:
@@ -256,7 +257,7 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 				parent.insert(target.getIndexInParent() + 1, vt);
 				model.insert(parent.getModelTask(), toAdd, targetMT.getIndexInParent() + 1);
 			} else {
-				Gdx.app.error(TAG, "Null parent in addTo below !" + target);
+				logger.error(TAG, "Null parent in addTo below !" + target);
 			}
 			break;
 		}
@@ -271,25 +272,25 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 		remove(vt);
 	}
 
-	@Override public void statusChanged (BTTask<E> task, Task.Status from, Task.Status to) {
+	@Override public void statusChanged (ModelTask<E> task, Task.Status from, Task.Status to) {
 		ViewTask<E> vt = find(viewRoot, task);
 		if (vt == null) {
-			Gdx.app.log(TAG, "VT for" + task + " in statusChanged not found!");
+			logger.log(TAG, "VT for" + task + " in statusChanged not found!");
 			return;
 		}
 		vt.statusChanged(from, to);
 	}
 
-	@Override public void validityChanged (BTTask<E> task, boolean isValid) {
+	@Override public void validityChanged (ModelTask<E> task, boolean isValid) {
 		ViewTask<E> vt = find(viewRoot, task);
 		if (vt == null) {
-			Gdx.app.log(TAG, "VT for" + task + " int validChanged not found!");
+			logger.log(TAG, "VT for" + task + " int validChanged not found!");
 			return;
 		}
 		vt.validChanged(isValid);
 	}
 
-	private ViewTask<E> find (ViewTask<E> parent, BTTask<E> task) {
+	private ViewTask<E> find (ViewTask<E> parent, ModelTask<E> task) {
 		// do we want ref only here?
 		if (parent.getModelTask() == task) {
 			return parent;
@@ -302,7 +303,7 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 		return null;
 	}
 
-	public Pool<BTEPayload> getPayloadPool () {
+	public Pool<ViewPayload> getPayloadPool () {
 		return payloadPool;
 	}
 
@@ -314,9 +315,18 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 		return shortStatuses;
 	}
 
+	public void setLogger (Logger logger) {
+		this.logger = logger;
+		AttrFieldEdit.setLogger(logger);
+	}
+
 	public interface ViewTaskSelectedListener<E> {
 		void selected (ViewTask<E> task);
 
 		void deselected ();
+	}
+
+	enum DropPoint {
+		ABOVE, MIDDLE, BELOW
 	}
 }

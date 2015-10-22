@@ -14,10 +14,10 @@ import static org.junit.Assert.*;
 /**
  * Created by PiotrJ on 15/10/15.
  */
-public class TaskActionTest {
-	TaskAction.Add add;
-	TaskAction.Insert insert;
-	TaskAction.Remove remove;
+public class ModelTaskActionTest {
+	ModelTaskAction.Add add;
+	ModelTaskAction.Insert insert;
+	ModelTaskAction.Remove remove;
 	Selector<Dog> selector;
 	BarkTask bark;
 	WalkTask walk;
@@ -31,9 +31,9 @@ public class TaskActionTest {
 		walk = new WalkTask();
 		care = new CareTask();
 
-		add = new TaskAction.Add();
-		insert = new TaskAction.Insert();
-		remove = new TaskAction.Remove();
+		add = new ModelTaskAction.Add();
+		insert = new ModelTaskAction.Insert();
+		remove = new ModelTaskAction.Remove();
 	}
 
 	@Test(expected = IllegalArgumentException.class) public void testNullTask () throws Exception {
