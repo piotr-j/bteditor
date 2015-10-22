@@ -227,8 +227,8 @@ public class AttrFieldEdit {
 		return true;
 	}
 
-	private static void createStuff (String text, final Object object, final Field field, Distribution dist, Table cont, Skin skin,
-		Class<? extends DWrapper>[] classes) {
+	private static void createDistEditField (String text, final Object object, final Field field, Distribution dist, Table cont,
+		Skin skin, Class<? extends DWrapper>[] classes) {
 		final Table fields = new Table();
 		final SelectBox<DWrapper> sb = new SelectBox<>(skin);
 		cont.add(new Label(text, skin)).row();
@@ -285,20 +285,24 @@ public class AttrFieldEdit {
 		// add new edit fields, per type of distribution
 		// if field type is one of the abstract classes, we want to be able to pick dist we want
 		if (type == IntegerDistribution.class) {
-			createStuff("Integer distribution", object, field, dist, cont, skin, new Class[]{CIDWrapper.class, TIDWrapper.class, UIDWrapper.class});
+			createDistEditField("Integer distribution", object, field, dist, cont, skin,
+				new Class[] {CIDWrapper.class, TIDWrapper.class, UIDWrapper.class});
 			return cont;
 		}
 
 		if (type == LongDistribution.class) {
-			createStuff("Long distribution", object, field, dist, cont, skin, new Class[]{CLDWrapper.class, TLDWrapper.class, ULDWrapper.class});
+			createDistEditField("Long distribution", object, field, dist, cont, skin,
+				new Class[] {CLDWrapper.class, TLDWrapper.class, ULDWrapper.class});
 			return cont;
 		}
 		if (type == FloatDistribution.class) {
-			createStuff("Float distribution", object, field, dist, cont, skin, new Class[]{CFDWrapper.class, TFDWrapper.class, UFDWrapper.class, GFDWrapper.class});
+			createDistEditField("Float distribution", object, field, dist, cont, skin,
+				new Class[] {CFDWrapper.class, TFDWrapper.class, UFDWrapper.class, GFDWrapper.class});
 			return cont;
 		}
 		if (type == DoubleDistribution.class) {
-			createStuff("Double distribution", object, field, dist, cont, skin, new Class[]{CDDWrapper.class, TDDWrapper.class, UDDWrapper.class, GDDWrapper.class});
+			createDistEditField("Double distribution", object, field, dist, cont, skin,
+				new Class[] {CDDWrapper.class, TDDWrapper.class, UDDWrapper.class, GDDWrapper.class});
 			return cont;
 		}
 		// if not we cant pick the type, just edit existing distribution
@@ -541,7 +545,7 @@ public class AttrFieldEdit {
 		protected int value;
 
 		@Override public void createEditFields (Table fields, Skin skin) {
-			fields.add(new Label("value", skin)).padRight(10);
+			fields.add(new Label("value", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new IntField(){
 				@Override public int getInt () {
 					return value;
@@ -580,7 +584,7 @@ public class AttrFieldEdit {
 		protected float mode;
 
 		@Override public void createEditFields (Table fields, Skin skin) {
-			fields.add(new Label("low", skin)).padRight(10);
+			fields.add(new Label("low", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new IntField(){
 				@Override public int getInt () {
 					return low;
@@ -592,7 +596,7 @@ public class AttrFieldEdit {
 				}
 			})).row();
 
-			fields.add(new Label("high", skin)).padRight(10);
+			fields.add(new Label("high", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new IntField(){
 				@Override public int getInt () {
 					return high;
@@ -604,7 +608,7 @@ public class AttrFieldEdit {
 				}
 			})).row();;
 
-			fields.add(new Label("mode", skin)).padRight(10);
+			fields.add(new Label("mode", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new FloatField(){
 				@Override public float getFloat () {
 					return mode;
@@ -644,7 +648,7 @@ public class AttrFieldEdit {
 		protected int high;
 
 		@Override public void createEditFields (Table fields, Skin skin) {
-			fields.add(new Label("low", skin)).padRight(10);
+			fields.add(new Label("low", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new IntField() {
 				@Override public int getInt () {
 					return low;
@@ -656,7 +660,7 @@ public class AttrFieldEdit {
 				}
 			})).row();;
 
-			fields.add(new Label("high", skin)).padRight(10);
+			fields.add(new Label("high", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new IntField() {
 				@Override public int getInt () {
 					return high;
@@ -694,7 +698,7 @@ public class AttrFieldEdit {
 		protected long value;
 
 		@Override public void createEditFields (Table fields, Skin skin) {
-			fields.add(new Label("value", skin)).padRight(10);
+			fields.add(new Label("value", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new LongField(){
 				@Override public long getLong () {
 					return value;
@@ -733,7 +737,7 @@ public class AttrFieldEdit {
 		protected double mode;
 
 		@Override public void createEditFields (Table fields, Skin skin) {
-			fields.add(new Label("low", skin)).padRight(10);
+			fields.add(new Label("low", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new LongField(){
 				@Override public long getLong () {
 					return low;
@@ -745,7 +749,7 @@ public class AttrFieldEdit {
 				}
 			})).row();
 
-			fields.add(new Label("high", skin)).padRight(10);
+			fields.add(new Label("high", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new LongField(){
 				@Override public long getLong () {
 					return high;
@@ -757,7 +761,7 @@ public class AttrFieldEdit {
 				}
 			})).row();
 
-			fields.add(new Label("mode", skin)).padRight(10);
+			fields.add(new Label("mode", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new DoubleField(){
 				@Override public double getDouble () {
 					return mode;
@@ -797,7 +801,7 @@ public class AttrFieldEdit {
 		protected long high;
 
 		@Override public void createEditFields (Table fields, Skin skin) {
-			fields.add(new Label("low", skin)).padRight(10);
+			fields.add(new Label("low", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new LongField(){
 				@Override public long getLong () {
 					return low;
@@ -809,7 +813,7 @@ public class AttrFieldEdit {
 				}
 			})).row();
 
-			fields.add(new Label("high", skin)).padRight(10);
+			fields.add(new Label("high", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new LongField(){
 				@Override public long getLong () {
 					return high;
@@ -847,7 +851,7 @@ public class AttrFieldEdit {
 		protected float value;
 
 		@Override public void createEditFields (Table fields, Skin skin) {
-			fields.add(new Label("value", skin)).padRight(10);
+			fields.add(new Label("value", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new FloatField(){
 				@Override public float getFloat () {
 					return value;
@@ -886,7 +890,7 @@ public class AttrFieldEdit {
 		protected float mode;
 
 		@Override public void createEditFields (Table fields, Skin skin) {
-			fields.add(new Label("low", skin)).padRight(10);
+			fields.add(new Label("low", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new FloatField() {
 				@Override public float getFloat () {
 					return low;
@@ -898,7 +902,7 @@ public class AttrFieldEdit {
 				}
 			})).row();
 
-			fields.add(new Label("high", skin)).padRight(10);
+			fields.add(new Label("high", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new FloatField() {
 				@Override public float getFloat () {
 					return high;
@@ -910,7 +914,7 @@ public class AttrFieldEdit {
 				}
 			})).row();
 
-			fields.add(new Label("mode", skin)).padRight(10);
+			fields.add(new Label("mode", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new FloatField(){
 				@Override public float getFloat () {
 					return mode;
@@ -950,7 +954,7 @@ public class AttrFieldEdit {
 		protected float high;
 
 		@Override public void createEditFields (Table fields, Skin skin) {
-			fields.add(new Label("low", skin)).padRight(10);
+			fields.add(new Label("low", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new FloatField(){
 				@Override public float getFloat () {
 					return low;
@@ -962,7 +966,7 @@ public class AttrFieldEdit {
 				}
 			})).row();
 
-			fields.add(new Label("high", skin)).padRight(10);
+			fields.add(new Label("high", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new FloatField(){
 				@Override public float getFloat () {
 					return high;
@@ -1001,7 +1005,7 @@ public class AttrFieldEdit {
 		protected float std;
 
 		@Override public void createEditFields (Table fields, Skin skin) {
-			fields.add(new Label("mean", skin)).padRight(10);
+			fields.add(new Label("mean", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new FloatField(){
 				@Override public float getFloat () {
 					return mean;
@@ -1013,7 +1017,7 @@ public class AttrFieldEdit {
 				}
 			})).row();
 
-			fields.add(new Label("STD", skin)).padRight(10);
+			fields.add(new Label("STD", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new FloatField(){
 				@Override public float getFloat () {
 					return std;
@@ -1051,7 +1055,7 @@ public class AttrFieldEdit {
 		protected double value;
 
 		@Override public void createEditFields (Table fields, Skin skin) {
-			fields.add(new Label("value", skin)).padRight(10);
+			fields.add(new Label("value", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new DoubleField(){
 				@Override public double getDouble () {
 					return value;
@@ -1090,7 +1094,7 @@ public class AttrFieldEdit {
 		protected double mode;
 
 		@Override public void createEditFields (Table fields, Skin skin) {
-			fields.add(new Label("low", skin)).padRight(10);
+			fields.add(new Label("low", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new DoubleField(){
 				@Override public double getDouble () {
 					return low;
@@ -1102,7 +1106,7 @@ public class AttrFieldEdit {
 				}
 			})).row();
 
-			fields.add(new Label("high", skin)).padRight(10);
+			fields.add(new Label("high", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new DoubleField(){
 				@Override public double getDouble () {
 					return high;
@@ -1114,7 +1118,7 @@ public class AttrFieldEdit {
 				}
 			})).row();
 
-			fields.add(new Label("mode", skin)).padRight(10);
+			fields.add(new Label("mode", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new DoubleField(){
 				@Override public double getDouble () {
 					return mode;
@@ -1154,7 +1158,7 @@ public class AttrFieldEdit {
 		protected double high;
 
 		@Override public void createEditFields (Table fields, Skin skin) {
-			fields.add(new Label("low", skin)).padRight(10);
+			fields.add(new Label("low", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new DoubleField(){
 				@Override public double getDouble () {
 					return low;
@@ -1166,7 +1170,7 @@ public class AttrFieldEdit {
 				}
 			})).row();
 
-			fields.add(new Label("high", skin)).padRight(10);
+			fields.add(new Label("high", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new DoubleField(){
 				@Override public double getDouble () {
 					return high;
@@ -1205,7 +1209,7 @@ public class AttrFieldEdit {
 		protected double std;
 
 		@Override public void createEditFields (Table fields, Skin skin) {
-			fields.add(new Label("mean", skin)).padRight(10);
+			fields.add(new Label("mean", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new DoubleField(){
 				@Override public double getDouble () {
 					return mean;
@@ -1217,7 +1221,7 @@ public class AttrFieldEdit {
 				}
 			})).row();
 
-			fields.add(new Label("STD", skin)).padRight(10);
+			fields.add(new Label("STD", skin)).padRight(10).row();
 			fields.add(valueEditField(skin, new DoubleField(){
 				@Override public double getDouble () {
 					return std;
