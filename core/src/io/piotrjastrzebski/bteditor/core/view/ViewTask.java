@@ -86,6 +86,7 @@ public class ViewTask<E> extends Tree.Node implements Pool.Poolable {
 		dad.addTarget(target);
 		name.setText(task.getName());
 		statusChanged(null, task.getStatus());
+		validChanged(task.isValid());
 		return this;
 	}
 
