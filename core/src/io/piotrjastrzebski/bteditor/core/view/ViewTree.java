@@ -174,11 +174,9 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 
 			@Override public void onDragStop (InputEvent event, float x, float y, int pointer, BTEPayload payload,
 				BTETarget target) {
-				Gdx.app.log("Add", "OnStop");
 				ViewTask vt = payload.getViewTask();
 				// vt wasnt added
 				if (vt.getParent() == null) {
-					Gdx.app.log("Add", "Free" + vt.getModelTask().getName());
 					model.free(vt.getModelTask());
 					freeVT(vt);
 				}
@@ -234,14 +232,17 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 			model.remove(toAdd);
 		}
 
-		Gdx.app.log(TAG, "Add " + vt + " to " + target + " at " + to);
 		ViewTask<E> parent = (ViewTask<E>)target.getParent();
 		BTTask<E> targetMT = target.getModelTask();
 		switch (to) {
 		case ABOVE:
 			// insert vt before target
-			parent.insert(target.getIndexInParent(), vt);
-			model.insert(parent.getModelTask(), toAdd, targetMT.getIndexInParent());
+			if (parent != null) {
+				parent.insert(target.getIndexInParent(), vt);
+				model.insert(parent.getModelTask(), toAdd, targetMT.getIndexInParent());
+			} else {
+				Gdx.app.error(TAG, "Null parent in addTo above !" + target);
+			}
 			break;
 		case MIDDLE:
 			// add vt to target
@@ -251,15 +252,20 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, BTModelListener<
 			break;
 		case BELOW:
 			// insert vt after target
-			parent.insert(target.getIndexInParent() + 1, vt);
-			model.insert(parent.getModelTask(), toAdd, targetMT.getIndexInParent() + 1);
+			if (parent != null) {
+				parent.insert(target.getIndexInParent() + 1, vt);
+				model.insert(parent.getModelTask(), toAdd, targetMT.getIndexInParent() + 1);
+			} else {
+				Gdx.app.error(TAG, "Null parent in addTo below !" + target);
+			}
 			break;
 		}
-		parent.expandAll();
+		// parent is null when adding to the root
+		if (parent != null)
+			parent.expandAll();
 	}
 
 	public void trash (ViewTask<E> vt) {
-		Gdx.app.log(TAG, "Remove " + vt);
 		model.remove(vt.getModelTask());
 		freeVT(vt);
 		remove(vt);
