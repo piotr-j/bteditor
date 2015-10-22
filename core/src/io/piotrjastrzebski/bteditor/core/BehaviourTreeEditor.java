@@ -51,8 +51,11 @@ public class BehaviourTreeEditor<E> extends Table implements ViewTree.ViewTaskSe
 		add(view).expand().fill();
 		tasks = new Table();
 		add(edit).expand().fill();
+		Table paneCont = new Table();
+		paneCont.add(new Label("DragAndDrop", skin)).row();
 		ScrollPane pane = new ScrollPane(tasks);
-		add(pane).expand().fill().top();
+		paneCont.add(pane);
+		add(paneCont).expand().fill().top();
 	}
 
 	/**
