@@ -67,11 +67,11 @@ public class Dog {
 	}
 
 	public void log (String msg) {
-		System.out.println(name + " : " + msg);
+//		System.out.println(name + " : " + msg);
 	}
 
 	public void brainLog (String msg) {
-		System.out.println(brainLog + " : " + msg);
+//		System.out.println(brainLog + " : " + msg);
 	}
 
 }
