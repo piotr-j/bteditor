@@ -133,7 +133,7 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor {
 		selector.addChild(parallel);
 
 		CareTask care = new CareTask();
-		care.urgentProb = 0.8f;
+		care.urgentProb = 0.3f;
 		parallel.addChild(care);
 		parallel.addChild(new AlwaysFail<>(new RestTask()));
 

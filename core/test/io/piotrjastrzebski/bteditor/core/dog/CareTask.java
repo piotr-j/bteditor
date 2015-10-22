@@ -35,15 +35,10 @@ public class CareTask extends LeafTask<Dog> {
 	@TaskAttribute
 	public String notReq = "not-req";
 
-	@TaskAttribute
-	public FloatDistribution times = ConstantFloatDistribution.ONE;
-
 	@Override
 	public void run () {
 		if (Math.random() < urgentProb) {
 			success();
-		} else if (times.nextFloat() > .5f) {
-			running();
 		} else {
 			Dog dog = getObject();
 			dog.brainLog("It's leaking out!!!");
