@@ -19,7 +19,7 @@ import io.piotrjastrzebski.bteditor.core.view.ViewTree;
  * <p>
  * Created by PiotrJ on 20/06/15.
  */
-public class BehaviourTreeEditor<E> extends Table implements ViewTree.ViewTaskSelectedListener<E> {
+public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSelectedListener<E> {
 	public static Logger NULL_LOGGER = new Logger() {
 		@Override public void log (String tag, String msg) {}
 		@Override public void error (String tag, String msg) {}
@@ -44,11 +44,11 @@ public class BehaviourTreeEditor<E> extends Table implements ViewTree.ViewTaskSe
 	private TextButton pauseBtn;
 	private TextButton stepBtn;
 
-	public BehaviourTreeEditor (Skin skin, Drawable white) {
+	public BehaviorTreeEditor (Skin skin, Drawable white) {
 		this(skin, white, 1);
 	}
 
-	public BehaviourTreeEditor (Skin skin, Drawable white, float scale) {
+	public BehaviorTreeEditor (Skin skin, Drawable white, float scale) {
 		super();
 		this.skin = skin;
 		model = new ModelTree<>();
@@ -84,7 +84,7 @@ public class BehaviourTreeEditor<E> extends Table implements ViewTree.ViewTaskSe
 					return;
 				}
 				if (stepBtn.isDisabled()) return;
-				persist.onSave(BehaviorTreeWriter.serialize(model.getBehaviourTree()));
+				persist.onSave(BehaviorTreeWriter.serialize(model.getBehaviorTree()));
 			}
 		});
 		topMenu.add(saveBtn);
@@ -96,7 +96,7 @@ public class BehaviourTreeEditor<E> extends Table implements ViewTree.ViewTaskSe
 					return;
 				}
 				if (saveAsBtn.isDisabled()) return;
-				persist.onSaveAs(BehaviorTreeWriter.serialize(model.getBehaviourTree()));
+				persist.onSaveAs(BehaviorTreeWriter.serialize(model.getBehaviorTree()));
 			}
 		});
 		topMenu.add(saveAsBtn);

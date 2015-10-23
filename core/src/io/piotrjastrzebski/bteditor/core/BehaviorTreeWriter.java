@@ -24,7 +24,7 @@ import java.util.Comparator;
 public class BehaviorTreeWriter {
 	/**
 	 * Save the tree in parsable format
-	 * @param tree behaviour tree to save
+	 * @param tree behavior tree to save
 	 * @param path external file path to save to, can't be a folder
 	 */
 	public static void save (BehaviorTree tree, String path) {

@@ -4,7 +4,7 @@ import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
-import io.piotrjastrzebski.bteditor.core.BehaviourTreeEditor;
+import io.piotrjastrzebski.bteditor.core.BehaviorTreeEditor;
 import io.piotrjastrzebski.bteditor.core.Logger;
 
 /**
@@ -31,7 +31,7 @@ public class ModelTree<E> implements Pool.Poolable, BehaviorTree.Listener<E>, Mo
 	private boolean dirty;
 	private ModelTask<E> root;
 	private Array<ModelTaskAction> pending = new Array<>();
-	protected Logger logger = BehaviourTreeEditor.NULL_LOGGER;
+	protected Logger logger = BehaviorTreeEditor.NULL_LOGGER;
 
 	public ModelTree () {
 		taskLibrary = new TaskLibrary<>();
@@ -183,7 +183,7 @@ public class ModelTree<E> implements Pool.Poolable, BehaviorTree.Listener<E>, Mo
 		}
 		valid = root.validate();
 		if (valid) {
-			// execute pending, modify wrapped behaviour tree
+			// execute pending, modify wrapped behavior tree
 			executePending();
 		}
 		return valid;
@@ -269,7 +269,7 @@ public class ModelTree<E> implements Pool.Poolable, BehaviorTree.Listener<E>, Mo
 		ModelTaskAction.setLogger(logger);
 	}
 
-	public BehaviorTree getBehaviourTree () {
+	public BehaviorTree getBehaviorTree () {
 		return bt;
 	}
 

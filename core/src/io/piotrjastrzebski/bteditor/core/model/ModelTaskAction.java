@@ -8,17 +8,17 @@ import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
-import io.piotrjastrzebski.bteditor.core.BehaviourTreeEditor;
+import io.piotrjastrzebski.bteditor.core.BehaviorTreeEditor;
 import io.piotrjastrzebski.bteditor.core.Logger;
 
 /**
  * Created by PiotrJ on 15/10/15.
  */
 abstract class ModelTaskAction implements Pool.Poolable {
-	protected static Logger logger = BehaviourTreeEditor.NULL_LOGGER;
+	protected static Logger logger = BehaviorTreeEditor.NULL_LOGGER;
 	protected static void setLogger (Logger logger) {
 		if (logger == null) {
-			ModelTaskAction.logger = BehaviourTreeEditor.NULL_LOGGER;
+			ModelTaskAction.logger = BehaviorTreeEditor.NULL_LOGGER;
 		} else {
 			ModelTaskAction.logger = logger;
 		}

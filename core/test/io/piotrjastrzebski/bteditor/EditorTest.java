@@ -30,7 +30,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.file.FileChooser;
 import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
-import io.piotrjastrzebski.bteditor.core.BehaviourTreeEditor;
+import io.piotrjastrzebski.bteditor.core.BehaviorTreeEditor;
 import io.piotrjastrzebski.bteditor.core.IPersist;
 import io.piotrjastrzebski.bteditor.core.dog.*;
 
@@ -46,7 +46,7 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor, IP
 	private ScreenViewport viewport;
 
 	private BehaviorTree<Dog> tree;
-	private BehaviourTreeEditor<Dog> editor;
+	private BehaviorTreeEditor<Dog> editor;
 	private FileChooser fileChooser;
 	private TextButton selectFileSaveButton;
 	private TextButton selectFileLoadButton;
@@ -76,7 +76,7 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor, IP
 		tree = new BehaviorTree<>(createDogBehavior());
 		tree.setObject(new Dog("Dog A"));
 
-		editor = new BehaviourTreeEditor<>(skin, skin.getDrawable("white"));
+		editor = new BehaviorTreeEditor<>(skin, skin.getDrawable("white"));
 //		editor.setLogger(new Logger() {
 //			@Override public void log (String tag, String msg) {
 //				Gdx.app.log(tag, msg);

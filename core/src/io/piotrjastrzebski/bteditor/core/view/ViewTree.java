@@ -15,7 +15,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
-import io.piotrjastrzebski.bteditor.core.BehaviourTreeEditor;
+import io.piotrjastrzebski.bteditor.core.BehaviorTreeEditor;
 import io.piotrjastrzebski.bteditor.core.Logger;
 import io.piotrjastrzebski.bteditor.core.model.ModelTree;
 import io.piotrjastrzebski.bteditor.core.model.ModelTask;
@@ -32,7 +32,7 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, ModelTree.Listen
 	private Actor separator;
 	private Pool<ViewPayload> payloadPool;
 	private boolean shortStatuses;
-	private Logger logger = BehaviourTreeEditor.NULL_LOGGER;
+	private Logger logger = BehaviorTreeEditor.NULL_LOGGER;
 
 	public ViewTree (Skin skin, Drawable white) {
 		this(skin, white, 1);

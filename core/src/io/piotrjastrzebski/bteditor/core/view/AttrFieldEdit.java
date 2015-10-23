@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Constructor;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
-import io.piotrjastrzebski.bteditor.core.BehaviourTreeEditor;
+import io.piotrjastrzebski.bteditor.core.BehaviorTreeEditor;
 import io.piotrjastrzebski.bteditor.core.Logger;
 
 /**
@@ -20,10 +20,10 @@ import io.piotrjastrzebski.bteditor.core.Logger;
  */
 class AttrFieldEdit {
 	private final static String TAG = AttrFieldEdit.class.getSimpleName();
-	protected static Logger logger = BehaviourTreeEditor.NULL_LOGGER;
+	protected static Logger logger = BehaviorTreeEditor.NULL_LOGGER;
 	protected static void setLogger (Logger logger) {
 		if (logger == null) {
-			AttrFieldEdit.logger = BehaviourTreeEditor.NULL_LOGGER;
+			AttrFieldEdit.logger = BehaviorTreeEditor.NULL_LOGGER;
 		} else {
 			AttrFieldEdit.logger = logger;
 		}
