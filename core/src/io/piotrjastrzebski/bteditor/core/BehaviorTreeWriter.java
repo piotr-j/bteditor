@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.annotation.TaskAttribute;
+import com.badlogic.gdx.ai.btree.decorator.Include;
 import com.badlogic.gdx.ai.btree.utils.DistributionAdapters;
 import com.badlogic.gdx.ai.utils.random.*;
 import com.badlogic.gdx.files.FileHandle;
@@ -68,6 +69,8 @@ public class BehaviorTreeWriter {
 		sb.append(toAlias(task.getClass()));
 		getTaskAttributes(sb, task);
 		sb.append("\n");
+		// include may have a whole tree as child, ignore it
+		if (task instanceof Include) return;
 		for (int i = 0; i < task.getChildCount(); i++) {
 			writeTask(sb, task.getChild(i), depth + 1);
 		}
