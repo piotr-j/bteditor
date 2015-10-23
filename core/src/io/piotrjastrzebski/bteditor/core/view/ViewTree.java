@@ -125,7 +125,6 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, ModelTree.Listen
 			model.removeListener(this);
 		}
 		model = null;
-		listeners.clear();
 		// TODO fix pooling for vts
 		remove(viewRoot);
 		freeVT(viewRoot);
