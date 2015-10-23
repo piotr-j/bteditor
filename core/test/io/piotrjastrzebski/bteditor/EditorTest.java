@@ -20,12 +20,10 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.file.FileChooser;
@@ -47,9 +45,8 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor, IP
 
 	private BehaviorTree<Dog> tree;
 	private BehaviorTreeEditor<Dog> editor;
-	private FileChooser fileChooser;
-	private TextButton selectFileSaveButton;
-	private TextButton selectFileLoadButton;
+	private FileChooser saveAsFC;
+	private FileChooser loadFC;
 
 	public EditorTest () {
 	}
@@ -117,54 +114,53 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor, IP
 
 		editor.setPersist(this);
 
+		// TODO proper error handling
 		FileChooser.setFavoritesPrefsName("io,piotrjastrzebski.bteditor");
 
-		fileChooser = new FileChooser(FileChooser.Mode.OPEN);
-		fileChooser.setSelectionMode(FileChooser.SelectionMode.FILES);
-		fileChooser.setListener(new FileChooserAdapter() {
-			@Override
-			public void selected (FileHandle file) {
-				// TODO probably need to choosers so we dont have to check if save or load
-				Gdx.app.log("", "Selected " + file.file().getAbsolutePath());
+		saveAsFC = new FileChooser(FileChooser.Mode.OPEN);
+		saveAsFC.setListener(new FileChooserAdapter() {
+			@Override public void selected (FileHandle file) {
+				Gdx.app.log("", "save " + file.file().getAbsolutePath());
+				saveFH = file;
+				saveBT(treeToSave, saveFH);
 			}
 		});
 
-		selectFileSaveButton = new TextButton("Save", skin);
-		selectFileSaveButton.addListener(new ChangeListener() {
-			@Override public void changed (ChangeEvent event, Actor actor) {
-				//displaying chooser with fade in animation
-				fileChooser.setMode(FileChooser.Mode.SAVE);
-				stage.addActor(fileChooser.fadeIn());
+		loadFC = new FileChooser(FileChooser.Mode.OPEN);
+		loadFC.setListener(new FileChooserAdapter() {
+			@Override public void selected (FileHandle file) {
+				Gdx.app.log("", "load " + file.file().getAbsolutePath());
+				tree = new BehaviorTree<>(createDogBehavior());
+				tree.setObject(new Dog("Dog A"));
+				editor.initialize(tree);
 			}
 		});
-		stage.addActor(selectFileSaveButton);
-
-		selectFileLoadButton = new TextButton("Load", skin);
-		selectFileLoadButton.addListener(new ChangeListener() {
-			@Override public void changed (ChangeEvent event, Actor actor) {
-				//displaying chooser with fade in animation
-				fileChooser.setMode(FileChooser.Mode.OPEN);
-				stage.addActor(fileChooser.fadeIn());
-			}
-		});
-		stage.addActor(selectFileLoadButton);
-		selectFileLoadButton.setPosition(selectFileSaveButton.getWidth() + 10, 0);
 	}
 
+	private void saveBT(String tree, FileHandle file) {
+		file.writeString(tree, false);
+	}
+
+	private FileHandle saveFH;
 	@Override public void onSave (String tree) {
 		Gdx.app.log("ET", "onSave " + tree);
+		if (saveFH == null) {
+			onSaveAs(tree);
+		} else {
+			saveBT(tree, saveFH);
+		}
 	}
 
+	private String treeToSave;
 	@Override public void onSaveAs (String tree) {
 		Gdx.app.log("ET", "onSaveAs " + tree);
-
+		treeToSave = tree;
+		stage.addActor(saveAsFC.fadeIn());
 	}
 
-	@Override public BehaviorTree<Dog> onLoad () {
+	@Override public void onLoad () {
 		Gdx.app.log("ET", "onLoad " + tree);
-		tree = new BehaviorTree<>(createDogBehavior());
-		tree.setObject(new Dog("Dog A"));
-		return tree;
+		stage.addActor(loadFC.fadeIn());
 	}
 
 	@Override public void render () {

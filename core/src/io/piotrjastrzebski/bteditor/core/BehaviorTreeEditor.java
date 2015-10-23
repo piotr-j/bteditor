@@ -107,12 +107,7 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 					logger.error("BTE", "You need to set IPersist before you can load a tree");
 					return;
 				}
-				BehaviorTree<E> bt = persist.onLoad();
-				if (bt != null) {
-					initialize(bt);
-				} else {
-					logger.error("", "Failed to load tree");
-				}
+				persist.onLoad();
 			}
 		});
 		topMenu.add(loadBtn);

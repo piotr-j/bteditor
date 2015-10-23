@@ -8,5 +8,5 @@ import com.badlogic.gdx.ai.btree.BehaviorTree;
 public interface IPersist<E> {
 	public void onSave(String tree);
 	public void onSaveAs(String tree);
-	public BehaviorTree<E> onLoad();
+	public void onLoad();
 }
