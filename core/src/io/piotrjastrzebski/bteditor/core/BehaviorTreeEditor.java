@@ -93,7 +93,6 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 					logger.error("BTE", "You need to set IPersist before you can save a tree");
 					return;
 				}
-				if (stepBtn.isDisabled()) return;
 				persist.onSave(BehaviorTreeWriter.serialize(model.getBehaviorTree()));
 			}
 		});
@@ -105,7 +104,6 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 					logger.error("BTE", "You need to set IPersist before you can save as a tree");
 					return;
 				}
-				if (saveAsBtn.isDisabled()) return;
 				persist.onSaveAs(BehaviorTreeWriter.serialize(model.getBehaviorTree()));
 			}
 		});
@@ -143,7 +141,6 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 			}
 		});
 		topMenu.add(stepBtn);
-		disableSaveBtns(true);
 		return topMenu;
 	}
 
@@ -159,12 +156,6 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 
 	public void setPersist(IPersist<E> persist) {
 		this.persist = persist;
-		disableSaveBtns(persist == null);
-	}
-
-	private void disableSaveBtns(boolean disable) {
-		saveBtn.setDisabled(disable);
-		saveAsBtn.setDisabled(disable);
 	}
 
 	/**
@@ -217,8 +208,6 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 	}
 
 	private void toggleButtons(boolean disabled) {
-		disableSaveBtns(disabled || persist == null);
-
 		pauseBtn.setDisabled(disabled);
 		stepBtn.setDisabled(disabled);
 	}
