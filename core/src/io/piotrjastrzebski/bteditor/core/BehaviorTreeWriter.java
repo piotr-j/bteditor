@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.annotation.TaskAttribute;
+import com.badlogic.gdx.ai.btree.utils.DistributionAdapters;
 import com.badlogic.gdx.ai.utils.random.*;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.*;
@@ -103,73 +104,24 @@ public class BehaviorTreeWriter {
 		if (field.getType().isEnum() || field.getType() == String.class) {
 			sb.append(":\"").append(o).append("\"");
 		} else if (Distribution.class.isAssignableFrom(field.getType())) {
-			// TODO use new distribution adapter thing to get this from latest snapshot
 			sb.append(":\"").append(toParseableString((Distribution)o)).append("\"");
 		} else {
 			sb.append(":").append(o);
 		}
 	}
 
+	private static DistributionAdapters adapters;
 	/**
 	 * Attempts to create a parseable string for given distribution
 	 * @param distribution distribution to create parsable string for
 	 * @return string that can be parsed by distribution classes
 	 */
 	public static String toParseableString (Distribution distribution) {
-		if (distribution == null) throw new IllegalArgumentException("Distribution cannot be null");
-		if (distribution instanceof ConstantIntegerDistribution) {
-			return "constant," + ((ConstantIntegerDistribution)distribution).getValue();
-		}
-		if (distribution instanceof ConstantLongDistribution) {
-			return "constant," + ((ConstantLongDistribution)distribution).getValue();
-		}
-		if (distribution instanceof ConstantFloatDistribution) {
-			return "constant," + ((ConstantFloatDistribution)distribution).getValue();
-		}
-		if (distribution instanceof ConstantDoubleDistribution) {
-			return "constant," + ((ConstantDoubleDistribution)distribution).getValue();
-		}
-		if (distribution instanceof GaussianFloatDistribution) {
-			GaussianFloatDistribution gfd = (GaussianFloatDistribution)distribution;
-			return "gaussian," + gfd.getMean() + "," + gfd.getStandardDeviation();
-		}
-		if (distribution instanceof GaussianDoubleDistribution) {
-			GaussianDoubleDistribution gdd = (GaussianDoubleDistribution)distribution;
-			return "gaussian," + gdd.getMean() + ","+ gdd.getStandardDeviation();
-		}
-		if (distribution instanceof TriangularIntegerDistribution) {
-			TriangularIntegerDistribution tid = (TriangularIntegerDistribution)distribution;
-			return "triangular," + tid.getLow() + "," + tid.getHigh() + "," + tid.getMode();
-		}
-		if (distribution instanceof TriangularLongDistribution) {
-			TriangularLongDistribution tld = (TriangularLongDistribution)distribution;
-			return "triangular," + tld.getLow() + "," + tld.getHigh() + "," + tld.getMode();
-		}
-		if (distribution instanceof TriangularFloatDistribution) {
-			TriangularFloatDistribution tfd = (TriangularFloatDistribution)distribution;
-			return "triangular," + tfd.getLow() + "," + tfd.getHigh() + "," + tfd.getMode();
-		}
-		if (distribution instanceof TriangularDoubleDistribution) {
-			TriangularDoubleDistribution tdd = (TriangularDoubleDistribution)distribution;
-			return "triangular," + tdd.getLow() + "," + tdd.getHigh() + "," + tdd.getMode();
-		}
-		if (distribution instanceof UniformIntegerDistribution) {
-			UniformIntegerDistribution uid = (UniformIntegerDistribution)distribution;
-			return "uniform," + uid.getLow() + "," + uid.getHigh();
-		}
-		if (distribution instanceof UniformLongDistribution) {
-			UniformLongDistribution uld = (UniformLongDistribution)distribution;
-			return "uniform," + uld.getLow() + "," + uld.getHigh();
-		}
-		if (distribution instanceof UniformFloatDistribution) {
-			UniformFloatDistribution ufd = (UniformFloatDistribution)distribution;
-			return "uniform," + ufd.getLow() + "," + ufd.getHigh();
-		}
-		if (distribution instanceof UniformDoubleDistribution) {
-			UniformDoubleDistribution udd = (UniformDoubleDistribution)distribution;
-			return "uniform," + udd.getLow() + "," + udd.getHigh();
-		}
-		throw new IllegalArgumentException("Unknown distribution type " + distribution);
+		if (distribution == null)
+			throw new IllegalArgumentException("Distribution cannot be null");
+		if (adapters == null)
+			adapters = new DistributionAdapters();
+		return adapters.toString(distribution);
 	}
 
 	private static void findClasses (Task task, Array<Class<? extends Task>> classes) {
