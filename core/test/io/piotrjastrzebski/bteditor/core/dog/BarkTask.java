@@ -39,8 +39,9 @@ public class BarkTask extends LeafTask<Dog> {
 
 	@Override
 	public void run () {
+		Dog dog = getObject();
 		for (int i = 0; i < t; i++)
-			getObject().bark();
+			dog.bark();
 		success();
 	}
 

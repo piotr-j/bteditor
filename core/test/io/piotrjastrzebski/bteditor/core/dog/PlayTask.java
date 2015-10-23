@@ -18,32 +18,29 @@ package io.piotrjastrzebski.bteditor.core.dog;
 
 import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
-import com.badlogic.gdx.ai.btree.annotation.TaskAttribute;
 
-/** @author implicit-invocation
- * @author davebaol */
-public class CareTask extends LeafTask<Dog> {
+public class PlayTask extends LeafTask<Dog> {
 
-	@TaskAttribute(required=true)
-	public float urgentProb = 0.8f;
+	public void start () {
+		Dog dog = getObject();
+		dog.brainLog("WOW - Lets play!");
+	}
 
 	@Override
 	public void run () {
-		if (Math.random() < urgentProb) {
-			success();
-		} else {
-			Dog dog = getObject();
-			dog.brainLog("GASP - Something urgent :/");
-			fail();
-		}
+		Dog dog = getObject();
+		dog.brainLog("PANT PANT - So fun");
+		running();
+	}
+
+	@Override
+	public void end () {
+		Dog dog = getObject();
+		dog.brainLog("SIC - No time to play :(");
 	}
 
 	@Override
 	protected Task<Dog> copyTo (Task<Dog> task) {
-		CareTask care = (CareTask)task;
-		care.urgentProb = urgentProb;
-
 		return task;
 	}
-
 }

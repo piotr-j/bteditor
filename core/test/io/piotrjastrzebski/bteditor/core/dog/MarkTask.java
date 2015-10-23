@@ -18,28 +18,28 @@ package io.piotrjastrzebski.bteditor.core.dog;
 
 import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
-import com.badlogic.gdx.ai.btree.annotation.TaskAttribute;
-import com.badlogic.gdx.ai.utils.random.ConstantDoubleDistribution;
-import com.badlogic.gdx.ai.utils.random.ConstantFloatDistribution;
-import com.badlogic.gdx.ai.utils.random.DoubleDistribution;
-import com.badlogic.gdx.ai.utils.random.FloatDistribution;
 
 /** @author implicit-invocation
  * @author davebaol */
 public class MarkTask extends LeafTask<Dog> {
 
-	@TaskAttribute
-	public DoubleDistribution times = ConstantDoubleDistribution.ONE;
+	int i;
+	
+	@Override
+	public void start () {
+		i = 0;
+		getObject().log("Dog lifts a leg and pee!");
+	}
 
 	@Override
 	public void run () {
 		Dog dog = getObject();
-		if (dog.standBesideATree()) {
-			dog.markATree();
-			dog.setUrgent(false);
-			success();
-		} else if (times.nextDouble() < .5d){
+		Boolean result = dog.markATree(i++);
+		if (result == null) {
 			running();
+		}
+		else if (result) {
+			success();
 		} else {
 			fail();
 		}
