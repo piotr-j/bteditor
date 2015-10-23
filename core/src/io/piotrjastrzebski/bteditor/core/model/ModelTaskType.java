@@ -3,6 +3,7 @@ package io.piotrjastrzebski.bteditor.core.model;
 import com.badlogic.gdx.ai.btree.BranchTask;
 import com.badlogic.gdx.ai.btree.Decorator;
 import com.badlogic.gdx.ai.btree.Task;
+import com.badlogic.gdx.ai.btree.decorator.Include;
 
 /**
  * Created by EvilEntity on 14/10/2015.
@@ -10,6 +11,7 @@ import com.badlogic.gdx.ai.btree.Task;
 public enum ModelTaskType {
 	BRANCH("Branch", 1, Integer.MAX_VALUE),
 	DECORATOR("Decorator", 1, 1),
+	INCLUDE("Include", 0, 0),
 	LEAF("Leaf", 0, 0);
 
 	private String name;
@@ -36,6 +38,9 @@ public enum ModelTaskType {
 	 * Get TaskType for given Task
 	 */
 	public static ModelTaskType valueFor (Task task) {
+		if (task instanceof Include) {
+			return ModelTaskType.INCLUDE;
+		}
 		if (task instanceof Decorator) {
 			return ModelTaskType.DECORATOR;
 		}
