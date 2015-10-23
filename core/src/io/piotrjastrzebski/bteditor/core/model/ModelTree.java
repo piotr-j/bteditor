@@ -269,6 +269,10 @@ public class ModelTree<E> implements Pool.Poolable, BehaviorTree.Listener<E>, Mo
 		ModelTaskAction.setLogger(logger);
 	}
 
+	public BehaviorTree getBehaviourTree () {
+		return bt;
+	}
+
 	public interface Listener<E> {
 		void statusChanged (ModelTask<E> task, Task.Status from, Task.Status to);
 
