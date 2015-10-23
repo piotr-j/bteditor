@@ -2,10 +2,9 @@ package io.piotrjastrzebski.bteditor.core;
 
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.Task;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Array;
 import io.piotrjastrzebski.bteditor.core.model.ModelTree;
@@ -37,6 +36,14 @@ public class BehaviourTreeEditor<E> extends Table implements ViewTree.ViewTaskSe
 	private ViewTaskAttributeEdit edit;
 	private Logger logger = NULL_LOGGER;
 
+	private IPersist<E> persist;
+
+	private TextButton saveBtn;
+	private TextButton saveAsBtn;
+	private TextButton loadBtn;
+	private TextButton pauseBtn;
+	private TextButton stepBtn;
+
 	public BehaviourTreeEditor (Skin skin, Drawable white) {
 		this(skin, white, 1);
 	}
@@ -47,6 +54,8 @@ public class BehaviourTreeEditor<E> extends Table implements ViewTree.ViewTaskSe
 		model = new ModelTree<>();
 		debugAll();
 		trash = new Label("Trash -> [_]", skin);
+		add(createTopMenu()).colspan(3);
+		row();
 		add(trash).colspan(3);
 		row();
 		edit = new ViewTaskAttributeEdit(skin);
@@ -64,6 +73,75 @@ public class BehaviourTreeEditor<E> extends Table implements ViewTree.ViewTaskSe
 		add(paneCont).expand().fill().top();
 	}
 
+	private Table createTopMenu() {
+		Table topMenu = new Table();
+		topMenu.defaults().pad(5);
+		saveBtn = new TextButton("Save", skin);
+		saveBtn.addListener(new ClickListener(){
+			@Override public void clicked (InputEvent event, float x, float y) {
+				if (persist == null) {
+					logger.error("BTE", "You need to set IPersist before you can save a tree");
+					return;
+				}
+				if (stepBtn.isDisabled()) return;
+				persist.onSave(BehaviorTreeWriter.serialize(model.getBehaviourTree()));
+			}
+		});
+		topMenu.add(saveBtn);
+		saveAsBtn = new TextButton("Save As...", skin);
+		saveAsBtn.addListener(new ClickListener(){
+			@Override public void clicked (InputEvent event, float x, float y) {
+				if (persist == null) {
+					logger.error("BTE", "You need to set IPersist before you can save as a tree");
+					return;
+				}
+				if (saveAsBtn.isDisabled()) return;
+				persist.onSaveAs(BehaviorTreeWriter.serialize(model.getBehaviourTree()));
+			}
+		});
+		topMenu.add(saveAsBtn);
+		loadBtn = new TextButton("Load...", skin);
+		loadBtn.addListener(new ClickListener(){
+			@Override public void clicked (InputEvent event, float x, float y) {
+				if (persist == null) {
+					logger.error("BTE", "You need to set IPersist before you can load a tree");
+					return;
+				}
+				BehaviorTree<E> bt = persist.onLoad();
+				if (bt != null) {
+					initialize(bt);
+				} else {
+					logger.error("", "Failed to load tree");
+				}
+			}
+		});
+		topMenu.add(loadBtn);
+		pauseBtn = new TextButton("Pause", skin, "toggle");
+		pauseBtn.addListener(new ClickListener(){
+			@Override public void clicked (InputEvent event, float x, float y) {
+				if (pauseBtn.isDisabled()) return;
+				if (pauseBtn.isChecked()) {
+					pauseBtn.setText("Resume");
+				} else {
+					pauseBtn.setText("Pause");
+				}
+			}
+		});
+		topMenu.add(pauseBtn);
+		stepBtn = new TextButton("Step", skin);
+		stepBtn.addListener(new ClickListener(){
+			@Override public void clicked (InputEvent event, float x, float y) {
+				if (stepBtn.isDisabled()) return;
+				// step only if the tree is paused
+				if (!pauseBtn.isChecked()) return;
+				model.step();
+			}
+		});
+		topMenu.add(stepBtn);
+		disableSaveBtns(true);
+		return topMenu;
+	}
+
 	public void setLogger (Logger logger) {
 		if (logger == null) {
 			this.logger = NULL_LOGGER;
@@ -72,6 +150,16 @@ public class BehaviourTreeEditor<E> extends Table implements ViewTree.ViewTaskSe
 		}
 		model.setLogger(logger);
 		view.setLogger(logger);
+	}
+
+	public void setPersist(IPersist<E> persist) {
+		this.persist = persist;
+		disableSaveBtns(persist == null);
+	}
+
+	private void disableSaveBtns(boolean disable) {
+		saveBtn.setDisabled(disable);
+		saveAsBtn.setDisabled(disable);
 	}
 
 	/**
@@ -106,10 +194,26 @@ public class BehaviourTreeEditor<E> extends Table implements ViewTree.ViewTaskSe
 	@Override public void act (float delta) {
 		super.act(delta);
 		timer += delta;
-		if (timer > delay) {
+		if (timer > delay && !pauseBtn.isChecked()) {
 			timer -= delay;
 			model.step();
 		}
+		checkValidity(model.isValid());
+	}
+
+	private boolean wasValid;
+	private void checkValidity (boolean valid) {
+		if (wasValid != valid) {
+			wasValid = valid;
+			toggleButtons(!valid);
+		}
+	}
+
+	private void toggleButtons(boolean disabled) {
+		disableSaveBtns(disabled || persist == null);
+
+		pauseBtn.setDisabled(disabled);
+		stepBtn.setDisabled(disabled);
 	}
 
 	public void setStepDelay (float delay) {

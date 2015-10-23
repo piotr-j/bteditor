@@ -31,12 +31,13 @@ import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.file.FileChooser;
 import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
 import io.piotrjastrzebski.bteditor.core.BehaviourTreeEditor;
+import io.piotrjastrzebski.bteditor.core.IPersist;
 import io.piotrjastrzebski.bteditor.core.dog.*;
 
 /**
  * Created by EvilEntity on 20/10/2015.
  */
-public class EditorTest extends ApplicationAdapter implements InputProcessor {
+public class EditorTest extends ApplicationAdapter implements InputProcessor, IPersist<Dog> {
 	private static final String TAG = EditorTest.class.getSimpleName();
 
 	private Skin skin;
@@ -114,6 +115,8 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor {
 		editor.addTaskClass(RestTask.class);
 		editor.addTaskClass(WalkTask.class);
 
+		editor.setPersist(this);
+
 		FileChooser.setFavoritesPrefsName("io,piotrjastrzebski.bteditor");
 
 		fileChooser = new FileChooser(FileChooser.Mode.OPEN);
@@ -146,6 +149,22 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor {
 		});
 		stage.addActor(selectFileLoadButton);
 		selectFileLoadButton.setPosition(selectFileSaveButton.getWidth() + 10, 0);
+	}
+
+	@Override public void onSave (String tree) {
+		Gdx.app.log("ET", "onSave " + tree);
+	}
+
+	@Override public void onSaveAs (String tree) {
+		Gdx.app.log("ET", "onSaveAs " + tree);
+
+	}
+
+	@Override public BehaviorTree<Dog> onLoad () {
+		Gdx.app.log("ET", "onLoad " + tree);
+		tree = new BehaviorTree<>(createDogBehavior());
+		tree.setObject(new Dog("Dog A"));
+		return tree;
 	}
 
 	@Override public void render () {
