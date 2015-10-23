@@ -6,7 +6,8 @@ import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.annotation.TaskAttribute;
 import com.badlogic.gdx.ai.utils.random.*;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.*;
+import com.badlogic.gdx.utils.StringBuilder;
 import com.badlogic.gdx.utils.reflect.Annotation;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
@@ -48,34 +49,30 @@ public class BehaviorTreeWriter {
 			}
 		});
 
-		String save = "# Alias definitions\n";
+		StringBuilder sb = new StringBuilder("# Alias definitions\n");
 
 		for (Class<? extends Task> aClass : classes) {
-			save += "import " + toAlias(aClass) + ":\"" + aClass.getCanonicalName()+"\"\n";
+			sb.append("import ").append(toAlias(aClass)).append(":\"").append(aClass.getCanonicalName()).append("\"\n");
 		}
 
-		save += "\n";
-		save +="root\n";
-		save += writeTask(tree.getChild(0), 1);
-		return save;
+		sb.append("\nroot\n");
+		writeTask(sb, tree.getChild(0), 1);
+		return sb.toString();
 	}
 
-	private static String writeTask (Task task, int depth) {
-		String save = "";
+	private static void writeTask (StringBuilder sb, Task task, int depth) {
 		for (int i = 0; i < depth; i++) {
-			save += "  ";
+			sb.append("  ");
 		}
-		save += toAlias(task.getClass());
-		save += getTaskAttributes(task);
-		save += "\n";
+		sb.append(toAlias(task.getClass()));
+		getTaskAttributes(sb, task);
+		sb.append("\n");
 		for (int i = 0; i < task.getChildCount(); i++) {
-			save += writeTask(task.getChild(i), depth + 1);
+			writeTask(sb, task.getChild(i), depth + 1);
 		}
-		return save;
 	}
 
-	private static String getTaskAttributes (Task task) {
-		String attrs = "";
+	private static void getTaskAttributes (StringBuilder sb, Task task) {
 		Class<?> aClass = task.getClass();
 		Field[] fields = ClassReflection.getFields(aClass);
 		for (Field f : fields) {
@@ -83,34 +80,34 @@ public class BehaviorTreeWriter {
 			if (a == null)
 				continue;
 			TaskAttribute annotation = a.getAnnotation(TaskAttribute.class);
-			attrs += " " + getFieldString(task, annotation, f);
+			sb.append(" ");
+			getFieldString(sb, task, annotation, f);
 		}
-		return attrs;
 	}
 
-	private static String getFieldString (Task task, TaskAttribute ann, Field field) {
+	private static void getFieldString (StringBuilder sb, Task task, TaskAttribute ann, Field field) {
 		// prefer name from annotation if there is one
 		String name = ann.name();
 		if (name == null || name.length() == 0) {
 			name = field.getName();
 		}
-		String value;
+		sb.append(name);
 		Object o;
 		try {
 			field.setAccessible(true);
 			o = field.get(task);
-			value = String.valueOf(o);
 		} catch (ReflectionException e) {
 			Gdx.app.error("", "Failed to get field", e);
-			return "";
+			return;
 		}
 		if (field.getType().isEnum() || field.getType() == String.class) {
-			return name + ":\"" + value + "\"";
+			sb.append(":\"").append(o).append("\"");
+		} else if (Distribution.class.isAssignableFrom(field.getType())) {
+			// TODO use new distribution adapter thing to get this from latest snapshot
+			sb.append(":\"").append(toParseableString((Distribution)o)).append("\"");
+		} else {
+			sb.append(":").append(o);
 		}
-		if (Distribution.class.isAssignableFrom(field.getType())) {
-			return name + ":\"" + toParseableString((Distribution)o) + "\"";
-		}
-		return name + ":" + value;
 	}
 
 	/**
