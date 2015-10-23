@@ -40,6 +40,7 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 	private ViewTaskAttributeEdit edit;
 	private Logger logger = NULL_LOGGER;
 
+	// TODO save part of the tree as new one
 	private IPersist<E> persist;
 
 	private TextButton saveBtn;
@@ -165,7 +166,6 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 	 */
 	public void initialize (BehaviorTree<E> tree, String root) {
 		resolver.setRoot(root);
-		Gdx.app.log("", "root = " + root);
 		model.init(tree);
 		view.init(model);
 	}

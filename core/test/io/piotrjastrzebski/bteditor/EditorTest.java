@@ -102,7 +102,7 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor, IP
 
 		editor.addTaskClass(AlwaysFail.class);
 		editor.addTaskClass(AlwaysSucceed.class);
-//		editor.addTaskClass(Include.class);
+		editor.addTaskClass(Include.class);
 		editor.addTaskClass(Invert.class);
 		editor.addTaskClass(Random.class);
 		editor.addTaskClass(Repeat.class);

@@ -3,6 +3,7 @@ package io.piotrjastrzebski.bteditor.core.model;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.Task;
+import com.badlogic.gdx.ai.btree.decorator.Include;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
@@ -52,6 +53,10 @@ public class TaskLibrary<E> {
 		if (aClass == null)
 			throw new IllegalArgumentException("Task class cannot be null!");
 		Task<E> arch = classToInstance.get(aClass, null);
+		if (aClass == Include.class) {
+			// lazy by default, so bt doesnt explode
+			return new Include<>("", true);
+		}
 		if (arch != null)
 			return arch.cloneTask();
 		return null;

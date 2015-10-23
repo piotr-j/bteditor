@@ -2,6 +2,7 @@ package io.piotrjastrzebski.bteditor.core.view;
 
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.annotation.TaskAttribute;
+import com.badlogic.gdx.ai.btree.decorator.Include;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -57,11 +58,21 @@ public class ViewTaskAttributeEdit extends Table {
 		}
 		Table cont = new Table();
 		cont.add(new Label(name, skin)).row();
-		try {
-			cont.add(AttrFieldEdit.createEditField(task, field, ann.required(), skin));
-		} catch (ReflectionException e) {
-			e.printStackTrace();
-			cont.add(new Label("<Failed>", skin));
+		// include is magic, need magic handling
+		if (task instanceof Include && name.equals("subtree")) {
+			try {
+				cont.add(AttrFieldEdit.createPathEditField(task, field, ann.required(), skin));
+			} catch (ReflectionException e) {
+				e.printStackTrace();
+				cont.add(new Label("<Failed>", skin));
+			}
+		} else {
+			try {
+				cont.add(AttrFieldEdit.createEditField(task, field, ann.required(), skin));
+			} catch (ReflectionException e) {
+				e.printStackTrace();
+				cont.add(new Label("<Failed>", skin));
+			}
 		}
 		add(cont).row();
 	}

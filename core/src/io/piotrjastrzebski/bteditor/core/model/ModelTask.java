@@ -1,6 +1,9 @@
 package io.piotrjastrzebski.bteditor.core.model;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.Task;
+import com.badlogic.gdx.ai.btree.decorator.Include;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 
@@ -74,12 +77,34 @@ public class ModelTask<E> implements Pool.Poolable {
 		return child;
 	}
 
+	private String lastSubtree;
 	public boolean validate () {
 		// check if we have correct amount of children
 		boolean valid = type.isValid(children.size);
-		for (ModelTask<E> child : children) {
-			if (!child.validate()) {
+		// include is magic, need some custom handling
+		if (task instanceof Include) {
+			String subtree = ((Include)task).subtree;
+			if (subtree == null || subtree.length() == 0) {
 				valid = false;
+			} else {
+				if (!subtree.equals(lastSubtree)) {
+					lastSubtree = subtree;
+					// TODO this is dumb
+					FileHandle fh = Gdx.files.internal(subtree);
+					valid = fh.exists() && !fh.isDirectory();
+//					if (valid) {
+//						task = new Include<>(subtree, true);
+//						init(task);
+//						model.requestRebuild();
+//					}
+				}
+			}
+		}
+		if (valid) {
+			for (ModelTask<E> child : children) {
+				if (!child.validate()) {
+					valid = false;
+				}
 			}
 		}
 		setValid(valid);

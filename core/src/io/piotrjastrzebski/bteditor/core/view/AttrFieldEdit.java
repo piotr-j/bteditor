@@ -1,7 +1,10 @@
 package io.piotrjastrzebski.bteditor.core.view;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.utils.random.*;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -411,6 +414,34 @@ class AttrFieldEdit {
 		});
 		addCancelOnESC(vtf);
 		return vtf;
+	}
+
+	public static Actor createPathEditField (Object object, Field field, boolean required, Skin skin) throws ReflectionException {
+		String value = (String)field.get(object);
+		final TextField tf = new TextField(value, skin);
+		tf.addListener(new ChangeListener() {
+			@Override public void changed (ChangeEvent event, Actor actor) {
+				String text = tf.getText();
+				if (text.length() == 0) {
+					tf.setColor(Color.RED);
+					return;
+				}
+				// TODO what else? we could try to parse it...
+				FileHandle fh = Gdx.files.internal(text);
+				if (fh.isDirectory() || !fh.exists()) {
+					tf.setColor(Color.RED);
+				} else {
+					tf.setColor(Color.WHITE);
+					try {
+						field.set(object, text);
+					} catch (ReflectionException e) {
+						logger.error("Path validator", "Failed to set field " + field + " to " + text, e);
+					}
+				}
+			}
+		});
+		addCancelOnESC(tf);
+		return tf;
 	}
 
 	private static abstract class ValueField {
