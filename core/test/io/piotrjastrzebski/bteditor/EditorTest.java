@@ -16,18 +16,22 @@ import com.badlogic.gdx.ai.btree.leaf.Wait;
 import com.badlogic.gdx.ai.utils.random.UniformIntegerDistribution;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kotcrab.vis.ui.VisUI;
+import com.kotcrab.vis.ui.widget.file.FileChooser;
+import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
 import io.piotrjastrzebski.bteditor.core.BehaviourTreeEditor;
-import io.piotrjastrzebski.bteditor.core.Logger;
 import io.piotrjastrzebski.bteditor.core.dog.*;
-import org.lwjgl.opengl.Display;
 
 /**
  * Created by EvilEntity on 20/10/2015.
@@ -35,28 +39,23 @@ import org.lwjgl.opengl.Display;
 public class EditorTest extends ApplicationAdapter implements InputProcessor {
 	private static final String TAG = EditorTest.class.getSimpleName();
 
+	private Skin skin;
 	private SpriteBatch batch;
 	private Stage stage;
 	private ScreenViewport viewport;
 
 	private BehaviorTree<Dog> tree;
 	private BehaviourTreeEditor<Dog> editor;
+	private FileChooser fileChooser;
+	private TextButton selectFileSaveButton;
+	private TextButton selectFileLoadButton;
 
 	public EditorTest () {
 	}
 
 	@Override public void create () {
-		boolean highRes = Math.max(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()) > 1980;
-		float scale;
-		if (highRes || Display.getPixelScaleFactor() > 1.5f) {
-			VisUI.load(VisUI.SkinScale.X2);
-			scale = 2;
-		} else {
-			VisUI.load(VisUI.SkinScale.X1);
-			scale = 1;
-		}
-		Skin skin = VisUI.getSkin();
-
+		skin = VisUI.getSkin();
+		skin = new Skin(Gdx.files.internal("uiskin.json"));
 		batch = new SpriteBatch();
 		viewport = new ScreenViewport(new OrthographicCamera());
 
@@ -65,7 +64,7 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor {
 
 		Window editorWindow = new Window("Editor", skin);
 		stage.addActor(editorWindow);
-		editorWindow.setSize(600 * scale, 550 * scale );
+		editorWindow.setSize(600, 550 );
 		editorWindow.setResizable(true);
 		editorWindow
 			.setPosition(stage.getWidth() / 2 - editorWindow.getWidth() / 2, stage.getHeight() / 2 - editorWindow.getHeight() / 2);
@@ -111,6 +110,39 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor {
 		editor.addTaskClass(MarkTask.class);
 		editor.addTaskClass(RestTask.class);
 		editor.addTaskClass(WalkTask.class);
+
+		FileChooser.setFavoritesPrefsName("io,piotrjastrzebski.bteditor");
+
+		fileChooser = new FileChooser(FileChooser.Mode.OPEN);
+		fileChooser.setSelectionMode(FileChooser.SelectionMode.FILES);
+		fileChooser.setListener(new FileChooserAdapter() {
+			@Override
+			public void selected (FileHandle file) {
+				// TODO probably need to choosers so we dont have to check if save or load
+				Gdx.app.log("", "Selected " + file.file().getAbsolutePath());
+			}
+		});
+
+		selectFileSaveButton = new TextButton("Save", skin);
+		selectFileSaveButton.addListener(new ChangeListener() {
+			@Override public void changed (ChangeEvent event, Actor actor) {
+				//displaying chooser with fade in animation
+				fileChooser.setMode(FileChooser.Mode.SAVE);
+				stage.addActor(fileChooser.fadeIn());
+			}
+		});
+		stage.addActor(selectFileSaveButton);
+
+		selectFileLoadButton = new TextButton("Load", skin);
+		selectFileLoadButton.addListener(new ChangeListener() {
+			@Override public void changed (ChangeEvent event, Actor actor) {
+				//displaying chooser with fade in animation
+				fileChooser.setMode(FileChooser.Mode.OPEN);
+				stage.addActor(fileChooser.fadeIn());
+			}
+		});
+		stage.addActor(selectFileLoadButton);
+		selectFileLoadButton.setPosition(selectFileSaveButton.getWidth() + 10, 0);
 	}
 
 	@Override public void render () {
@@ -125,6 +157,7 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor {
 
 	@Override public void dispose () {
 		batch.dispose();
+		skin.dispose();
 	}
 
 	private static Task<Dog> createDogBehavior () {
