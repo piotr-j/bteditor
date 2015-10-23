@@ -54,6 +54,9 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor {
 	}
 
 	@Override public void create () {
+		// need vis for file picker
+		VisUI.load();
+
 		skin = VisUI.getSkin();
 		skin = new Skin(Gdx.files.internal("uiskin.json"));
 		batch = new SpriteBatch();
@@ -158,6 +161,7 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor {
 	@Override public void dispose () {
 		batch.dispose();
 		skin.dispose();
+		VisUI.dispose();
 	}
 
 	private static Task<Dog> createDogBehavior () {
@@ -232,7 +236,6 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.width = 800;
 		config.height = 600;
-		config.useHDPI = true;
 		new LwjglApplication(new EditorTest(), config);
 	}
 }
