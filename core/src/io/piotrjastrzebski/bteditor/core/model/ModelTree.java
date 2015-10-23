@@ -2,6 +2,7 @@ package io.piotrjastrzebski.bteditor.core.model;
 
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.Task;
+import com.badlogic.gdx.ai.btree.decorator.Include;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import io.piotrjastrzebski.bteditor.core.BehaviorTreeEditor;
@@ -229,7 +230,17 @@ public class ModelTree<E> implements Pool.Poolable, BehaviorTree.Listener<E>, Mo
 	}
 
 	@Override public void childAdded (Task<E> task, int index) {
-
+		if (task instanceof Include) {
+			ModelTask<E> btTask = findBTTask(task);
+//			btTask.init(task.getChild(0));
+//			btTask.addChild(task.getChild(0));
+			// TODO do we replace include with loaded child, or add it as child to include?
+			// TODO could replace only if its root for whatever reason
+			add(btTask, task.getChild(0));
+			for (Listener<E> listener : listeners) {
+				listener.rebuild();
+			}
+		}
 	}
 
 	@Override public void validChanged (ModelTask<E> task, boolean isValid) {
@@ -277,5 +288,7 @@ public class ModelTree<E> implements Pool.Poolable, BehaviorTree.Listener<E>, Mo
 		void statusChanged (ModelTask<E> task, Task.Status from, Task.Status to);
 
 		void validityChanged (ModelTask<E> task, boolean isValid);
+
+		void rebuild();
 	}
 }

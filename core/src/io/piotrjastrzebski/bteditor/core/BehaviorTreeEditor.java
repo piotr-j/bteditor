@@ -1,7 +1,11 @@
 package io.piotrjastrzebski.bteditor.core;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.Task;
+import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibrary;
+import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibraryManager;
+import com.badlogic.gdx.assets.loaders.resolvers.AbsoluteFileHandleResolver;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -43,6 +47,7 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 	private TextButton loadBtn;
 	private TextButton pauseBtn;
 	private TextButton stepBtn;
+	private RelativeFileHandleResolver resolver;
 
 	public BehaviorTreeEditor (Skin skin, Drawable white) {
 		this(skin, white, 1);
@@ -51,6 +56,10 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 	public BehaviorTreeEditor (Skin skin, Drawable white, float scale) {
 		super();
 		this.skin = skin;
+		// we need to set custom resolver so we can load includes that are not from cwd
+		resolver = new RelativeFileHandleResolver();
+		BehaviorTreeLibraryManager.getInstance().setLibrary(new BehaviorTreeLibrary(resolver));
+
 		model = new ModelTree<>();
 		debugAll();
 		trash = new Label("Trash -> [_]", skin);
@@ -71,6 +80,7 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 		ScrollPane pane = new ScrollPane(tasks);
 		paneCont.add(pane);
 		add(paneCont).expand().fill().top();
+
 	}
 
 	private Table createTopMenu() {
@@ -162,7 +172,9 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 	 *
 	 * @param tree to initialize with
 	 */
-	public void initialize (BehaviorTree<E> tree) {
+	public void initialize (BehaviorTree<E> tree, String root) {
+		resolver.setRoot(root);
+		Gdx.app.log("", "root = " + root);
 		model.init(tree);
 		view.init(model);
 	}

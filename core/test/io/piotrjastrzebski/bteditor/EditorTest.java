@@ -4,15 +4,15 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.ai.GdxAI;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.Task;
-import com.badlogic.gdx.ai.btree.branch.Parallel;
-import com.badlogic.gdx.ai.btree.branch.Selector;
-import com.badlogic.gdx.ai.btree.branch.Sequence;
+import com.badlogic.gdx.ai.btree.branch.*;
 import com.badlogic.gdx.ai.btree.decorator.*;
 import com.badlogic.gdx.ai.btree.leaf.Failure;
 import com.badlogic.gdx.ai.btree.leaf.Success;
 import com.badlogic.gdx.ai.btree.leaf.Wait;
+import com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser;
 import com.badlogic.gdx.ai.utils.random.UniformIntegerDistribution;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
@@ -24,6 +24,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.utils.SerializationException;
+import com.badlogic.gdx.utils.StreamUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.file.FileChooser;
@@ -31,6 +33,8 @@ import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
 import io.piotrjastrzebski.bteditor.core.BehaviorTreeEditor;
 import io.piotrjastrzebski.bteditor.core.IPersist;
 import io.piotrjastrzebski.bteditor.core.dog.*;
+
+import java.io.Reader;
 
 /**
  * Created by EvilEntity on 20/10/2015.
@@ -89,10 +93,13 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor, IP
 //		});
 		editorWindow.add(editor).expand().fill();
 
-		editor.initialize(tree);
+		editor.initialize(tree, null);
 		editor.addTaskClass(Sequence.class);
+		editor.addTaskClass(RandomSequence.class);
 		editor.addTaskClass(Selector.class);
+		editor.addTaskClass(RandomSelector.class);
 		editor.addTaskClass(Parallel.class);
+
 		editor.addTaskClass(AlwaysFail.class);
 		editor.addTaskClass(AlwaysSucceed.class);
 //		editor.addTaskClass(Include.class);
@@ -117,7 +124,8 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor, IP
 		// TODO proper error handling
 		FileChooser.setFavoritesPrefsName("io,piotrjastrzebski.bteditor");
 
-		saveAsFC = new FileChooser(FileChooser.Mode.OPEN);
+		saveAsFC = new FileChooser(FileChooser.Mode.SAVE);
+		saveAsFC.setDirectory(Gdx.files.getLocalStoragePath());
 		saveAsFC.setListener(new FileChooserAdapter() {
 			@Override public void selected (FileHandle file) {
 				Gdx.app.log("", "save " + file.file().getAbsolutePath());
@@ -127,14 +135,33 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor, IP
 		});
 
 		loadFC = new FileChooser(FileChooser.Mode.OPEN);
+		loadFC.setDirectory(Gdx.files.getLocalStoragePath());
 		loadFC.setListener(new FileChooserAdapter() {
 			@Override public void selected (FileHandle file) {
 				Gdx.app.log("", "load " + file.file().getAbsolutePath());
-				tree = new BehaviorTree<>(createDogBehavior());
-				tree.setObject(new Dog("Dog A"));
-				editor.initialize(tree);
+				loadBT(file);
 			}
 		});
+	}
+
+	private void loadBT (FileHandle file) {
+		Reader reader = null;
+		try {
+			reader = file.reader();
+			BehaviorTreeParser<Dog> parser = new BehaviorTreeParser<Dog>(BehaviorTreeParser.DEBUG_NONE) {
+				protected BehaviorTree<Dog> createBehaviorTree (Task<Dog> root, Dog object) {
+					if (debug > BehaviorTreeParser.DEBUG_LOW) printTree(root, 0);
+					return new BehaviorTree<>(root, object);
+				}
+			};
+			tree = (BehaviorTree<Dog>)parser.parse(reader, null).cloneTask();
+			tree.setObject(new Dog("Dog A"));
+			editor.initialize(tree, file.file().getParent());
+		} catch (SerializationException e) {
+			Gdx.app.error("ET", "Failed to load " + file.file().getAbsolutePath(), e);
+		} finally {
+			StreamUtils.closeQuietly(reader);
+		}
 	}
 
 	private void saveBT(String tree, FileHandle file) {
@@ -143,7 +170,6 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor, IP
 
 	private FileHandle saveFH;
 	@Override public void onSave (String tree) {
-		Gdx.app.log("ET", "onSave " + tree);
 		if (saveFH == null) {
 			onSaveAs(tree);
 		} else {
@@ -153,7 +179,6 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor, IP
 
 	private String treeToSave;
 	@Override public void onSaveAs (String tree) {
-		Gdx.app.log("ET", "onSaveAs " + tree);
 		treeToSave = tree;
 		stage.addActor(saveAsFC.fadeIn());
 	}
@@ -167,6 +192,7 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor, IP
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		stage.act(Gdx.graphics.getDeltaTime());
 		stage.draw();
+		GdxAI.getTimepiece().update(Gdx.graphics.getDeltaTime());
 	}
 
 	@Override public void resize (int width, int height) {

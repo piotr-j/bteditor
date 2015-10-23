@@ -289,6 +289,10 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, ModelTree.Listen
 		vt.validChanged(isValid);
 	}
 
+	@Override public void rebuild () {
+		init(model);
+	}
+
 	private ViewTask<E> find (ViewTask<E> parent, ModelTask<E> task) {
 		// do we want ref only here?
 		if (parent.getModelTask() == task) {

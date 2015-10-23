@@ -11,7 +11,7 @@ import com.badlogic.gdx.ai.btree.decorator.Include;
 public enum ModelTaskType {
 	BRANCH("Branch", 1, Integer.MAX_VALUE),
 	DECORATOR("Decorator", 1, 1),
-	INCLUDE("Include", 0, 0),
+	INCLUDE("Include", 0, 1),
 	LEAF("Leaf", 0, 0);
 
 	private String name;
