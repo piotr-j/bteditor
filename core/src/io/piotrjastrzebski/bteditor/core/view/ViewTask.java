@@ -201,4 +201,8 @@ public class ViewTask<E> extends Tree.Node implements Pool.Poolable {
 			break;
 		}
 	}
+
+	public ViewTask<E> createClone () {
+		return owner.initVT(task.createClone());
+	}
 }

@@ -199,6 +199,12 @@ public class ModelTask<E> implements Pool.Poolable {
 		this.changeListener = listener;
 	}
 
+	public ModelTask<E> createClone () {
+		ModelTask<E> obtain = (ModelTask<E>)model.obtain();
+		obtain.init(task.cloneTask());
+		return obtain;
+	}
+
 	protected interface ValidChangeListener<E> {
 		void validChanged (ModelTask<E> task, boolean isValid);
 	}

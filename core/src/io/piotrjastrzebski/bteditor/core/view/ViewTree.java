@@ -1,5 +1,7 @@
 package io.piotrjastrzebski.bteditor.core.view;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -96,23 +98,20 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, ModelTree.Listen
 		model.addListener(this);
 		ModelTask<E> root = model.getRootNode();
 		add(viewRoot = initVT(root));
-		for (int i = 0; i < root.getChildCount(); i++) {
-			addViewTask(viewRoot, root.getChild(i));
-		}
 		expandAll();
 	}
 
 	protected void addViewTask (ViewTask<E> parent, ModelTask<E> task) {
 		ViewTask<E> node = initVT(task);
 		parent.add(node);
-		for (int i = 0; i < task.getChildCount(); i++) {
-			addViewTask(node, task.getChild(i));
-		}
 	}
 
 	protected ViewTask<E> initVT (ModelTask<E> task) {
 		ViewTask<E> out = vtPool.obtain();
 		out.init(task);
+		for (int i = 0; i < task.getChildCount(); i++) {
+			addViewTask(out, task.getChild(i));
+		}
 		return out;
 	}
 
@@ -214,6 +213,10 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, ModelTree.Listen
 		return vt.findNode(target) == null;
 	}
 
+	private boolean isAltPressed() {
+		return Gdx.input.isKeyPressed(Input.Keys.ALT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.ALT_RIGHT);
+	}
+
 	/**
 	 * Add new node to target at dp
 	 */
@@ -223,9 +226,13 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, ModelTree.Listen
 			logger.log(TAG, target + " cant be added to " + vt + " at " + to);
 			return;
 		}
-		// TODO change model as well
-		// if the view task is already in the tree, remove it
-		vt.remove();
+
+		if (isAltPressed()) {
+			vt = vt.createClone();
+		} else {
+			// if the view task is already in the tree, remove it
+			vt.remove();
+		}
 
 		ModelTask<E> toAdd = vt.getModelTask();
 		if (toAdd.getParent() != null) {
