@@ -40,7 +40,7 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, ModelTree.Listen
 		this(skin, white, 1);
 	}
 
-	public ViewTree (Skin skin, Drawable white, float scale) {
+	public ViewTree (final Skin skin, final Drawable white, float scale) {
 		super(skin);
 		// remove y spacing so we dont have gaps for DaD
 		setYSpacing(0);

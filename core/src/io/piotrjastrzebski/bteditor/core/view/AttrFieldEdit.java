@@ -241,7 +241,7 @@ class AttrFieldEdit {
 	}
 
 	private static void createDistEditField (String text, final Object object, final Field field, Distribution dist, Table cont,
-		Skin skin, Class<? extends DWrapper>[] classes) {
+		final Skin skin, Class<? extends DWrapper>[] classes) {
 		final Table fields = new Table();
 		final SelectBox<DWrapper> sb = new SelectBox<>(skin);
 		cont.add(new Label(text, skin)).row();
@@ -397,7 +397,7 @@ class AttrFieldEdit {
 		return null;
 	}
 
-	private static Actor valueEditField (Skin skin, ValueField valueField) {
+	private static Actor valueEditField (Skin skin, final ValueField valueField) {
 		final TextField vtf = new TextField("", skin);
 		vtf.setText(valueField.get());
 		vtf.setTextFieldFilter(valueField.getFilter());
@@ -416,7 +416,7 @@ class AttrFieldEdit {
 		return vtf;
 	}
 
-	public static Actor createPathEditField (Object object, Field field, boolean required, Skin skin) throws ReflectionException {
+	public static Actor createPathEditField (final Object object, final Field field, boolean required, Skin skin) throws ReflectionException {
 		String value = (String)field.get(object);
 		final TextField tf = new TextField(value, skin);
 		tf.addListener(new ChangeListener() {
