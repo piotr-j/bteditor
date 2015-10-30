@@ -5,6 +5,7 @@ import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.decorator.Include;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
+import com.badlogic.gdx.utils.SnapshotArray;
 import io.piotrjastrzebski.bteditor.core.BehaviorTreeEditor;
 import io.piotrjastrzebski.bteditor.core.Logger;
 
@@ -60,6 +61,7 @@ public class ModelTree<E> implements Pool.Poolable, BehaviorTree.Listener<E>, Mo
 			logger.log(TAG, "dirty, reset bt");
 			dirty = false;
 			bt.reset();
+			notifyRebuild();
 		}
 		bt.step();
 	}
@@ -206,7 +208,7 @@ public class ModelTree<E> implements Pool.Poolable, BehaviorTree.Listener<E>, Mo
 		return valid;
 	}
 
-	Array<Listener<E>> listeners = new Array<>();
+	SnapshotArray<Listener<E>> listeners = new SnapshotArray<>();
 
 	public void addListener (Listener<E> listener) {
 		if (!listeners.contains(listener, true)) {
@@ -237,9 +239,6 @@ public class ModelTree<E> implements Pool.Poolable, BehaviorTree.Listener<E>, Mo
 			// TODO do we replace include with loaded child, or add it as child to include?
 			// TODO could replace only if its root for whatever reason
 			add(btTask, task.getChild(0));
-			for (Listener<E> listener : listeners) {
-				listener.rebuild();
-			}
 		}
 	}
 
@@ -282,6 +281,15 @@ public class ModelTree<E> implements Pool.Poolable, BehaviorTree.Listener<E>, Mo
 
 	public BehaviorTree getBehaviorTree () {
 		return bt;
+	}
+
+	private void notifyRebuild () {
+		// listeners are dumb, they removed themselves in here sometimes
+		Object[] snapshot = listeners.begin();
+		for (int i = 0; i < listeners.size; i++) {
+			((Listener)snapshot[i]).rebuild();
+		}
+		listeners.end();
 	}
 
 	public interface Listener<E> {
