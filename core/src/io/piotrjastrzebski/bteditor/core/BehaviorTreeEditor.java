@@ -62,7 +62,6 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 		BehaviorTreeLibraryManager.getInstance().setLibrary(new BehaviorTreeLibrary(resolver));
 
 		model = new ModelTree<>();
-		debugAll();
 		trash = new Label("Trash -> [_]", skin);
 		add(createTopMenu()).colspan(3);
 		row();
