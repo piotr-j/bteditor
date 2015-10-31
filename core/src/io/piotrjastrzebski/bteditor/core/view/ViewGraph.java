@@ -8,10 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
@@ -21,24 +18,26 @@ import io.piotrjastrzebski.bteditor.core.model.ModelTree;
 /**
  * Created by PiotrJ on 30/10/15.
  */
-public class ViewGraph<E> extends Table implements ModelTree.Listener<E> {
+public class ViewGraph<E> extends ScrollPane implements ModelTree.Listener<E> {
 	protected Skin skin;
 	protected TextureRegionDrawable line;
 	protected Node<E> root;
 	protected ModelTree<E> model;
+	protected Table container;
 
 	public ViewGraph (TextureRegionDrawable line, Skin skin) {
+		super(new Table(), skin);
+		container = (Table)getWidget();
 		this.line = line;
 		this.skin = skin;
 	}
 
 	public void init (ModelTree<E> model) {
 		rebuild(model);
-//		debugAll();
 	}
 
-	@Override public void reset () {
-		super.reset();
+	public void reset () {
+		container.reset();
 		if (model != null) model.removeListener(this);
 	}
 
@@ -48,7 +47,7 @@ public class ViewGraph<E> extends Table implements ModelTree.Listener<E> {
 		model.addListener(this);
 		ModelTask<E> rootTask = model.getRootNode();
 		root = new Node<>(createTaskActor(rootTask), rootTask, skin);
-		add(root).expand().fillX().top();
+		container.add(root).expand().fillX().top();
 		for (int i = 0; i < rootTask.getChildCount(); i++) {
 			ModelTask<E> child = rootTask.getChild(i);
 			createNodes(root, child);
