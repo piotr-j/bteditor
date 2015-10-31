@@ -170,7 +170,7 @@ public class ViewGraph<E> extends Table implements ModelTree.Listener<E> {
 
 		public void addNode (Node<E> node) {
 			childrenNodes.add(node);
-			children.add(node).expand().fillX().top();
+			children.add(node).expand().fillX().top().pad(5);
 			if (hide.getParent() == null)
 				top.add(hide).padLeft(5);
 		}
