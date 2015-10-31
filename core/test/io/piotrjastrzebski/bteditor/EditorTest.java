@@ -20,11 +20,9 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.StreamUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -122,12 +120,6 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor, IP
 
 		editor.setPersist(this);
 
-		Window graphWindow = new Window("Graph view", skin);
-		graphWindow.setResizable(true);
-		graphWindow.add(createView()).expand().fill();
-		graphWindow.pack();
-		stage.addActor(graphWindow);
-
 		// TODO proper error handling
 		FileChooser.setFavoritesPrefsName("io,piotrjastrzebski.bteditor");
 
@@ -149,11 +141,6 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor, IP
 				loadBT(file);
 			}
 		});
-	}
-
-	private Actor createView() {
-		TextureRegionDrawable white = (TextureRegionDrawable)VisUI.getSkin().getDrawable("white");
-		return new GraphView<>(white, editor.getModel());
 	}
 
 	private void loadBT (FileHandle file) {

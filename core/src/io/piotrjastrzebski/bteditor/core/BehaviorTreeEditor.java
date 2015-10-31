@@ -6,12 +6,19 @@ import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibrary;
 import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibraryManager;
 import com.badlogic.gdx.assets.loaders.resolvers.AbsoluteFileHandleResolver;
+import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import io.piotrjastrzebski.bteditor.core.model.ModelTree;
+import io.piotrjastrzebski.bteditor.core.view.ViewGraph;
 import io.piotrjastrzebski.bteditor.core.view.ViewTaskAttributeEdit;
 import io.piotrjastrzebski.bteditor.core.view.ViewTask;
 import io.piotrjastrzebski.bteditor.core.view.ViewTree;
@@ -40,6 +47,9 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 	private ViewTaskAttributeEdit edit;
 	private Logger logger = NULL_LOGGER;
 
+	private Window graphWindow;
+	private ViewGraph<E> graph;
+
 	// TODO save part of the tree as new one
 	private IPersist<E> persist;
 
@@ -48,6 +58,7 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 	private TextButton loadBtn;
 	private TextButton pauseBtn;
 	private TextButton stepBtn;
+	private TextButton showGraph;
 	private RelativeFileHandleResolver resolver;
 
 	public BehaviorTreeEditor (Skin skin, Drawable white) {
@@ -81,6 +92,18 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 		paneCont.add(pane);
 		add(paneCont).expand().fill().top();
 
+		graphWindow = new Window("Graph view", skin);
+		graphWindow.setResizable(true);
+		graph = new ViewGraph<>((TextureRegionDrawable)white, skin);
+		graphWindow.add(graph).expand().fill();
+		graphWindow.pack();
+		final TextButton graphClose = new TextButton("X", skin);
+		graphWindow.getTitleTable().add(graphClose).padRight(-getPadRight() + 0.7f);
+		graphClose.addListener(new ChangeListener() {
+			@Override public void changed (ChangeEvent event, Actor actor) {
+				graphWindow.remove();
+			}
+		});
 	}
 
 	private Table createTopMenu() {
@@ -141,6 +164,22 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 			}
 		});
 		topMenu.add(stepBtn);
+		showGraph = new TextButton("Graph", skin);
+		showGraph.addListener(new ClickListener(){
+			@Override public void clicked (InputEvent event, float x, float y) {
+				Stage stage = getStage();
+				// center only if new add
+				if (graphWindow.getStage() == null) {
+					graphWindow.pack();
+					stage.addActor(graphWindow);
+					graphWindow
+						.setPosition(stage.getWidth() / 2 - graphWindow.getWidth() / 2, stage.getHeight() / 2 - graphWindow.getHeight() / 2);
+				} else {
+					stage.addActor(graphWindow);
+				}
+			}
+		});
+		topMenu.add(showGraph);
 		return topMenu;
 	}
 
@@ -167,6 +206,7 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 		resolver.setRoot(root);
 		model.init(tree);
 		view.init(model);
+		graph.init(model);
 	}
 
 	@Override public void selected (ViewTask<E> task) {
@@ -181,6 +221,7 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 	 * Reset the editor to initial state
 	 */
 	public void reset () {
+		graph.reset();
 		view.reset();
 		model.reset();
 	}
