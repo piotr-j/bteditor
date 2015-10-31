@@ -24,6 +24,17 @@ import io.piotrjastrzebski.bteditor.core.view.ViewTree;
  * <p>
  * E - type of blackboard in the tree
  * <p>
+ *
+ *    TODO:
+ *    - replaceable root node, currently removing root clears all
+ *    - replaceable other nodes via shortcut
+ *    - tooltips?
+ *    - help screen on start
+ *    - icons for task types
+ *    - save selected branch of the tree as new tree
+ *    - improve handling of include subtrees
+ *    - make selected branch of the tree as include
+ *
  * Created by PiotrJ on 20/06/15.
  */
 public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSelectedListener<E> {
