@@ -93,30 +93,30 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor, IP
 		editorWindow.add(editor).expand().fill();
 
 		editor.initialize(tree, null);
-		editor.addTaskClass(Sequence.class);
-		editor.addTaskClass(RandomSequence.class);
-		editor.addTaskClass(Selector.class);
-		editor.addTaskClass(RandomSelector.class);
-		editor.addTaskClass(Parallel.class);
+		editor.addTaskClass("branch", Sequence.class);
+		editor.addTaskClass("branch", Selector.class);
+		editor.addTaskClass("branch", Parallel.class);
+		editor.addTaskClass("branch", RandomSelector.class);
+		editor.addTaskClass("branch", RandomSequence.class);
 
-		editor.addTaskClass(AlwaysFail.class);
-		editor.addTaskClass(AlwaysSucceed.class);
-		editor.addTaskClass(Include.class);
-		editor.addTaskClass(Invert.class);
-		editor.addTaskClass(Random.class);
-		editor.addTaskClass(Repeat.class);
-		editor.addTaskClass(SemaphoreGuard.class);
-		editor.addTaskClass(UntilFail.class);
-		editor.addTaskClass(UntilSuccess.class);
-		editor.addTaskClass(Wait.class);
-		editor.addTaskClass(Success.class);
-		editor.addTaskClass(Failure.class);
+		editor.addTaskClass("decorator", AlwaysFail.class);
+		editor.addTaskClass("decorator", AlwaysSucceed.class);
+		editor.addTaskClass("decorator", Include.class);
+		editor.addTaskClass("decorator", Invert.class);
+		editor.addTaskClass("decorator", Random.class);
+		editor.addTaskClass("decorator", Repeat.class);
+		editor.addTaskClass("decorator", SemaphoreGuard.class);
+		editor.addTaskClass("decorator", UntilFail.class);
+		editor.addTaskClass("decorator", UntilSuccess.class);
+		editor.addTaskClass("decorator", Wait.class);
+		editor.addTaskClass("decorator", Success.class);
+		editor.addTaskClass("decorator", Failure.class);
 
-		editor.addTaskClass(BarkTask.class);
-		editor.addTaskClass(CareTask.class);
-		editor.addTaskClass(MarkTask.class);
-		editor.addTaskClass(RestTask.class);
-		editor.addTaskClass(WalkTask.class);
+		editor.addTaskClass("custom", BarkTask.class);
+		editor.addTaskClass("custom", CareTask.class);
+		editor.addTaskClass("custom", MarkTask.class);
+		editor.addTaskClass("custom", RestTask.class);
+		editor.addTaskClass("custom", WalkTask.class);
 
 		editor.setPersist(this);
 

@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
 import io.piotrjastrzebski.bteditor.core.model.ModelTree;
 import io.piotrjastrzebski.bteditor.core.view.ViewGraph;
 import io.piotrjastrzebski.bteditor.core.view.ViewTaskAttributeEdit;
@@ -46,7 +47,7 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 	private Skin skin;
 
 	private Array<TaskNode> nodes = new Array<>();
-	private Table tasks;
+	private Tree tasks;
 	private Label trash;
 
 	private ModelTree<E> model;
@@ -90,14 +91,17 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 		view.addListener(this);
 		view.addTrash(trash);
 		view.setShortStatuses(true);
-		add(view).expand().fill();
-		tasks = new Table();
-		add(edit).expand().fill();
+
+		tasks = new Tree(skin);
+		tasks.setYSpacing(0);
 		Table paneCont = new Table();
 		paneCont.add(new Label("DragAndDrop", skin)).row();
 		ScrollPane pane = new ScrollPane(tasks);
-		paneCont.add(pane);
+		paneCont.add(pane).expand().fill();
 		add(paneCont).expand().fill().top();
+
+		add(view).expand().fill();
+		add(edit).expand().fill();
 
 		graphWindow = new Window("Graph view", skin);
 		graphWindow.setResizable(true);
@@ -267,12 +271,24 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 		this.delay = delay;
 	}
 
+	private ObjectMap<String, Tree.Node> catToNode = new ObjectMap<>();
 	public void addTaskClass (Class<? extends Task> aClass) {
+		addTaskClass("all", aClass);
+	}
+
+	public void addTaskClass (String category, Class<? extends Task> aClass) {
 		model.getTaskLibrary().add(aClass);
 		TaskNode node = new TaskNode(aClass, skin);
 		nodes.add(node);
 		view.addSource(node, aClass);
-		tasks.add(node).row();
+		Tree.Node catNode = catToNode.get(category);
+		if (catNode == null) {
+			catNode = new Tree.Node(new Label(category, skin));
+			catToNode.put(category, catNode);
+			tasks.add(catNode);
+		}
+		catNode.add(new Tree.Node(node));
+		tasks.expandAll();
 	}
 
 	public ModelTree<E> getModel () {
