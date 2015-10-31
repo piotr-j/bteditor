@@ -187,4 +187,10 @@ public class ViewTask<E> extends Tree.Node implements Pool.Poolable {
 	public ViewTask<E> createClone () {
 		return owner.initVT(task.createClone());
 	}
+
+	public boolean isEditable () {
+		if (task == null) return false;
+		if (task.getTask() == null) return false;
+		return true;
+	}
 }

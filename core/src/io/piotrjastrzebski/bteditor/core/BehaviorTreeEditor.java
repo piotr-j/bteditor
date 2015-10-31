@@ -1,16 +1,12 @@
 package io.piotrjastrzebski.bteditor.core;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibrary;
 import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibraryManager;
-import com.badlogic.gdx.assets.loaders.resolvers.AbsoluteFileHandleResolver;
-import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -210,7 +206,11 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 	}
 
 	@Override public void selected (ViewTask<E> task) {
-		edit.startEdit(task.getModelTask().getTask());
+		if (task.isEditable()) {
+			edit.startEdit(task.getModelTask().getTask());
+		} else {
+			edit.stopEdit();
+		}
 	}
 
 	@Override public void deselected () {
