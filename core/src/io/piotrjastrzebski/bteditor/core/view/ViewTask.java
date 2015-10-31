@@ -133,7 +133,7 @@ public class ViewTask<E> extends Tree.Node implements Pool.Poolable {
 		} else {
 			status.setText(to.toString());
 		}
-		status.setColor(getColor(to));
+		status.setColor(ViewColors.getColor(to));
 		status.clearActions();
 		status.addAction(Actions.color(Color.GRAY, fadeTime, Interpolation.pow3In));
 	}
@@ -156,24 +156,6 @@ public class ViewTask<E> extends Tree.Node implements Pool.Poolable {
 
 	public ModelTask<E> getModelTask () {
 		return task;
-	}
-
-	private static Color getColor (Task.Status status) {
-		if (status == null)
-			return Color.GRAY;
-		switch (status) {
-		case SUCCEEDED:
-			return Color.GREEN;
-		case RUNNING:
-			return Color.ORANGE;
-		case FAILED:
-			return Color.RED;
-		case CANCELLED:
-			return Color.PURPLE;
-		case FRESH:
-		default:
-			return Color.GRAY;
-		}
 	}
 
 	private static void updateSeparator (DropPoint dropPoint, boolean isValid, Actor sep, Table cont) {
