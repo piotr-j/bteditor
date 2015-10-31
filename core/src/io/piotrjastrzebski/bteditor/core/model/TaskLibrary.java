@@ -17,6 +17,7 @@ public class TaskLibrary<E> {
 	private final static String TAG = TaskLibrary.class.getSimpleName();
 
 	private ObjectMap<Class<? extends Task>, Task<E>> classToInstance;
+	private Injector<E> injector;
 
 	protected TaskLibrary () {
 		classToInstance = new ObjectMap<>();
@@ -30,6 +31,7 @@ public class TaskLibrary<E> {
 			throw new IllegalArgumentException("Task class  cannot be null!");
 		try {
 			Task<E> task = ClassReflection.newInstance(aClass);
+			if (injector != null) injector.inject(task);
 			classToInstance.put(aClass, task);
 		} catch (ReflectionException e) {
 			Gdx.app.error(TAG, "Failed to create task of type " + aClass, e);
@@ -55,7 +57,9 @@ public class TaskLibrary<E> {
 		Task<E> arch = classToInstance.get(aClass, null);
 		if (aClass == Include.class) {
 			// lazy by default, so bt doesnt explode
-			return new Include<>("", true);
+			Include<E> include = new Include<>("", true);
+			if (injector != null) injector.inject(include);
+			return include;
 		}
 		if (arch != null)
 			return arch.cloneTask();
@@ -108,5 +112,13 @@ public class TaskLibrary<E> {
 		for (int i = 0; i < task.getChildCount(); i++) {
 			addFromTask(task.getChild(i));
 		}
+	}
+
+	public void setInjector(Injector<E> injector) {
+		this.injector = injector;
+	}
+
+	public interface Injector<E> {
+		public void inject(Task<E> task);
 	}
 }

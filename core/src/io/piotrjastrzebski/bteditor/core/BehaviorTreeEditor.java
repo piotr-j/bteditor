@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import io.piotrjastrzebski.bteditor.core.model.ModelTree;
+import io.piotrjastrzebski.bteditor.core.model.TaskLibrary;
 import io.piotrjastrzebski.bteditor.core.view.ViewGraph;
 import io.piotrjastrzebski.bteditor.core.view.ViewTaskAttributeEdit;
 import io.piotrjastrzebski.bteditor.core.view.ViewTask;
@@ -297,6 +298,10 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 
 	public ViewTree<E> getView () {
 		return view;
+	}
+
+	public void setTaskInjector (TaskLibrary.Injector<E> injector) {
+		model.getTaskLibrary().setInjector(injector);
 	}
 
 	private static class TaskNode extends Label {

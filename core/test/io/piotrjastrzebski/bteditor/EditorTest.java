@@ -32,6 +32,7 @@ import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
 import io.piotrjastrzebski.bteditor.core.BehaviorTreeEditor;
 import io.piotrjastrzebski.bteditor.core.IPersist;
 import io.piotrjastrzebski.bteditor.core.dog.*;
+import io.piotrjastrzebski.bteditor.core.model.TaskLibrary;
 
 import java.io.Reader;
 
@@ -91,7 +92,12 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor, IP
 //			}
 //		});
 		editorWindow.add(editor).expand().fill();
-
+		// must be set before any calls to BehaviorTreeEditor#addTaskClass()
+		editor.setTaskInjector(new TaskLibrary.Injector<Dog>() {
+			@Override public void inject (Task<Dog> task) {
+				// do something to the task
+			}
+		});
 		editor.initialize(tree, null);
 		editor.addTaskClass("branch", Sequence.class);
 		editor.addTaskClass("branch", Selector.class);
