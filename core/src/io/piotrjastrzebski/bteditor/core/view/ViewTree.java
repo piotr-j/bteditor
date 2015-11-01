@@ -15,8 +15,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
-import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.badlogic.gdx.utils.reflect.ReflectionException;
 import io.piotrjastrzebski.bteditor.core.BehaviorTreeEditor;
 import io.piotrjastrzebski.bteditor.core.Logger;
 import io.piotrjastrzebski.bteditor.core.model.ModelTree;
@@ -142,7 +140,6 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, ModelTree.Listen
 		listeners.removeValue(listener, true);
 	}
 
-	// TODO use model for this crap
 	protected ObjectMap<Class<? extends Task>, Task<E>> classToTask = new ObjectMap<>();
 
 	/**
@@ -151,13 +148,6 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, ModelTree.Listen
 	public void addSource (Actor source, final Class<? extends Task> task) {
 		if (classToTask.containsKey(task)) {
 			logger.log(TAG, "Task class already added: " + task);
-			return;
-		}
-		try {
-			Task instance = ClassReflection.newInstance(task);
-			classToTask.put(task, instance);
-		} catch (ReflectionException e) {
-			logger.error(TAG, "Failed to instantience task " + task, e);
 			return;
 		}
 		dad.addSource(new ViewSource(source, getPayloadPool()) {
