@@ -98,6 +98,7 @@ public class ViewGraph<E> extends ScrollPane implements ModelTree.Listener<E> {
 	}
 
 	private Node<E> findNode (Task<E> task) {
+		if (root == null) return null;
 		return root.findNode(task);
 	}
 
@@ -122,7 +123,7 @@ public class ViewGraph<E> extends ScrollPane implements ModelTree.Listener<E> {
 	}
 
 	@Override public void clear () {
-		super.clear();
+		container.clear();
 		root = null;
 		model.removeListener(this);
 	}
