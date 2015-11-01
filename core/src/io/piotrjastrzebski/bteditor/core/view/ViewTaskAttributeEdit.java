@@ -17,13 +17,14 @@ import com.badlogic.gdx.utils.reflect.ReflectionException;
  */
 public class ViewTaskAttributeEdit extends Table {
 	private Skin skin;
+	private Label top;
 	private Label name;
 
 	public ViewTaskAttributeEdit (Skin skin) {
 		super();
 		this.skin = skin;
-		name = new Label("<?>", skin);
-		add(name);
+		add(top = new Label("Edit task", skin)).row();
+		add(name = new Label("<?>", skin));
 		row();
 	}
 
@@ -79,6 +80,7 @@ public class ViewTaskAttributeEdit extends Table {
 
 	public void stopEdit () {
 		clear();
+		add(top).row();
 		add(name).row();
 		name.setText("<?>");
 	}

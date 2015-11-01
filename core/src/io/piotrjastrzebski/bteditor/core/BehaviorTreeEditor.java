@@ -102,7 +102,7 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 		add(paneCont).expand().fill().top();
 
 		add(view).expand().fill();
-		add(edit).expand().fill();
+		add(edit).expand().fillX().top();
 
 		graphWindow = new Window("Graph view", skin);
 		graphWindow.setResizable(true);
