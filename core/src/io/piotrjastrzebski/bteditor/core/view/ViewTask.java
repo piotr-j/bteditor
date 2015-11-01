@@ -105,6 +105,7 @@ public class ViewTask<E> extends Tree.Node implements Pool.Poolable {
 		for (Tree.Node node : getChildren()) {
 			owner.freeVT((ViewTask<E>)node);
 		}
+		removeAll();
 	}
 
 	public static final float DROP_MARGIN = 0.25f;
