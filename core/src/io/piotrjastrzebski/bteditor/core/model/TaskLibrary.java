@@ -29,6 +29,7 @@ public class TaskLibrary<E> {
 	public void add (Class<? extends Task> aClass) {
 		if (aClass == null)
 			throw new IllegalArgumentException("Task class  cannot be null!");
+		if (classToInstance.containsKey(aClass)) return;
 		try {
 			Task<E> task = ClassReflection.newInstance(aClass);
 			if (injector != null) injector.inject(task);
@@ -108,7 +109,7 @@ public class TaskLibrary<E> {
 	}
 
 	private void addFromTask (Task<E> task) {
-		add(task);
+		add(task.getClass());
 		for (int i = 0; i < task.getChildCount(); i++) {
 			addFromTask(task.getChild(i));
 		}
