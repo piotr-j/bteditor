@@ -223,7 +223,7 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 
 	@Override public void selected (ViewTask<E> task) {
 		if (task.isEditable()) {
-			edit.startEdit(task.getModelTask().getTask());
+			edit.startEdit(task.getModelTask());
 		} else {
 			edit.stopEdit();
 		}

@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.reflect.Annotation;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
+import io.piotrjastrzebski.bteditor.core.model.ModelTask;
 
 /**
  * View for attribute editing on tasks
@@ -28,10 +29,10 @@ public class ViewTaskAttributeEdit extends Table {
 		row();
 	}
 
-	public void startEdit (Task task) {
+	public void startEdit (ModelTask task) {
 		stopEdit();
 		name.setText(task.getClass().getSimpleName());
-		addTaskAttributes(task);
+		addTaskAttributes(task.getTask());
 	}
 
 	private void addTaskAttributes (Task task) {
