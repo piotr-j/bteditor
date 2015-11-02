@@ -200,7 +200,7 @@ public class ViewTree<E> extends Tree implements Pool.Poolable, ModelTree.Listen
 		if (!model.checkAdd(target.getModelTask(), vt.getModelTask().getTask()) && to.equals(DropPoint.MIDDLE)) {
 			return false;
 		}
-		return vt.findNode(target) == null;
+		return (vt.findNode(target) == null || isAltPressed());
 	}
 
 	private boolean isAltPressed() {
