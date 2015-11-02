@@ -64,11 +64,13 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 
 	private TextButton saveBtn;
 	private TextButton saveAsBtn;
+	private TextButton saveSelectedAsBtn;
 	private TextButton loadBtn;
 	private TextButton pauseBtn;
 	private TextButton stepBtn;
 	private TextButton showGraph;
 	private RelativeFileHandleResolver resolver;
+	private ViewTask<E> selected = null;
 
 	public BehaviorTreeEditor (Skin skin, Drawable white) {
 		this(skin, white, 1);
@@ -128,7 +130,7 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 					logger.error("BTE", "You need to set IPersist before you can save a tree");
 					return;
 				}
-				persist.onSave(BehaviorTreeWriter.serialize(model.getBehaviorTree()));
+				persist.onSave(BehaviorTreeWriter.serialize(model.getRootNode().getTask()));
 			}
 		});
 		topMenu.add(saveBtn);
@@ -139,7 +141,7 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 					logger.error("BTE", "You need to set IPersist before you can save as a tree");
 					return;
 				}
-				persist.onSaveAs(BehaviorTreeWriter.serialize(model.getBehaviorTree()));
+				persist.onSaveAs(BehaviorTreeWriter.serialize(model.getRootNode().getTask()));
 			}
 		});
 		topMenu.add(saveAsBtn);
@@ -154,6 +156,18 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 			}
 		});
 		topMenu.add(loadBtn);
+		saveSelectedAsBtn = new TextButton("Save Task As...", skin);
+		saveSelectedAsBtn.addListener(new ClickListener(){
+			@Override public void clicked (InputEvent event, float x, float y) {
+				if (persist == null) {
+					logger.error("BTE", "You need to set IPersist before you can save as a tree");
+					return;
+				}
+				if (selected == null) return;
+				persist.onSaveTaskAs(BehaviorTreeWriter.serialize(selected.getModelTask().getTask()));
+			}
+		});
+		topMenu.add(saveSelectedAsBtn);
 		pauseBtn = new TextButton("Pause", skin, "toggle");
 		pauseBtn.addListener(new ClickListener(){
 			@Override public void clicked (InputEvent event, float x, float y) {
@@ -227,10 +241,12 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 		} else {
 			edit.stopEdit();
 		}
+		selected = task;
 	}
 
 	@Override public void deselected () {
 		edit.stopEdit();
+		selected = null;
 	}
 
 	/**

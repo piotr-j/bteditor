@@ -50,6 +50,7 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor, IP
 	private BehaviorTree<Dog> tree;
 	private BehaviorTreeEditor<Dog> editor;
 	private FileChooser saveAsFC;
+	private FileChooser saveTaskAsFC;
 	private FileChooser loadFC;
 
 	public EditorTest () {
@@ -147,6 +148,15 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor, IP
 				loadBT(file);
 			}
 		});
+
+		saveTaskAsFC = new FileChooser(FileChooser.Mode.SAVE);
+		saveTaskAsFC.setDirectory(Gdx.files.getLocalStoragePath());
+		saveTaskAsFC.setListener(new FileChooserAdapter() {
+			@Override public void selected (FileHandle file) {
+				Gdx.app.log("", "save task " + file.file().getAbsolutePath());
+				saveBT(taskToSave, file);
+			}
+		});
 	}
 
 	private void loadBT (FileHandle file) {
@@ -175,6 +185,7 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor, IP
 
 	private FileHandle saveFH;
 	@Override public void onSave (String tree) {
+		Gdx.app.log("", tree);
 		if (saveFH == null) {
 			onSaveAs(tree);
 		} else {
@@ -186,6 +197,12 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor, IP
 	@Override public void onSaveAs (String tree) {
 		treeToSave = tree;
 		stage.addActor(saveAsFC.fadeIn());
+	}
+
+	private String taskToSave;
+	@Override public void onSaveTaskAs (String tree) {
+		taskToSave = tree;
+		stage.addActor(saveTaskAsFC.fadeIn());
 	}
 
 	@Override public void onLoad () {

@@ -42,9 +42,9 @@ public class BehaviorTreeWriter {
 	 * @param tree tree to serialize
 	 * @return serialized tree
 	 */
-	public static String serialize(BehaviorTree tree) {
+	public static String serialize(Task tree) {
 		Array<Class<? extends Task>> classes = new Array<>();
-		findClasses(tree.getChild(0), classes);
+		findClasses(tree, classes);
 		classes.sort(new Comparator<Class<? extends Task>>() {
 			@Override public int compare (Class<? extends Task> o1, Class<? extends Task> o2) {
 				return o1.getSimpleName().compareTo(o2.getSimpleName());
@@ -58,7 +58,7 @@ public class BehaviorTreeWriter {
 		}
 
 		sb.append("\nroot\n");
-		writeTask(sb, tree.getChild(0), 1);
+		writeTask(sb, tree, 1);
 		return sb.toString();
 	}
 
