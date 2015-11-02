@@ -36,6 +36,7 @@ import io.piotrjastrzebski.bteditor.core.view.ViewTree;
  *    - save selected branch of the tree as new tree
  *    - improve handling of include subtrees
  *    - make selected branch of the tree as include
+ *    - add and edit comments per task
  *
  * Created by PiotrJ on 20/06/15.
  */
