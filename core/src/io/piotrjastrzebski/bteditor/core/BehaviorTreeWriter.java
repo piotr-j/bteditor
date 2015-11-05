@@ -8,12 +8,14 @@ import com.badlogic.gdx.ai.btree.decorator.Include;
 import com.badlogic.gdx.ai.btree.utils.DistributionAdapters;
 import com.badlogic.gdx.ai.utils.random.*;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.utils.StringBuilder;
 import com.badlogic.gdx.utils.reflect.Annotation;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
+import io.piotrjastrzebski.bteditor.core.model.ModelTask;
 
 import java.util.Comparator;
 
@@ -39,12 +41,12 @@ public class BehaviorTreeWriter {
 
 	/**
 	 * Serialize the tree to parser readable format
-	 * @param tree tree to serialize
+	 * @param task task to serialize
 	 * @return serialized tree
 	 */
-	public static String serialize(Task tree) {
+	public static String serialize(Task task) {
 		Array<Class<? extends Task>> classes = new Array<>();
-		findClasses(tree, classes);
+		findClasses(task, classes);
 		classes.sort(new Comparator<Class<? extends Task>>() {
 			@Override public int compare (Class<? extends Task> o1, Class<? extends Task> o2) {
 				return o1.getSimpleName().compareTo(o2.getSimpleName());
@@ -58,7 +60,7 @@ public class BehaviorTreeWriter {
 		}
 
 		sb.append("\nroot\n");
-		writeTask(sb, tree, 1);
+		writeTask(sb, task, 1);
 		return sb.toString();
 	}
 
@@ -73,6 +75,54 @@ public class BehaviorTreeWriter {
 		if (task instanceof Include) return;
 		for (int i = 0; i < task.getChildCount(); i++) {
 			writeTask(sb, task.getChild(i), depth + 1);
+		}
+	}
+
+	/**
+	 * Serialize the tree to parser readable format
+	 * @param task task to serialize
+	 * @return serialized tree
+	 */
+	public static String serialize(ModelTask task) {
+		Array<Class<? extends Task>> classes = new Array<>();
+		findClasses(task.getTask(), classes);
+		classes.sort(new Comparator<Class<? extends Task>>() {
+			@Override public int compare (Class<? extends Task> o1, Class<? extends Task> o2) {
+				return o1.getSimpleName().compareTo(o2.getSimpleName());
+			}
+		});
+
+		StringBuilder sb = new StringBuilder("# Alias definitions\n");
+
+		for (Class<? extends Task> aClass : classes) {
+			sb.append("import ").append(toAlias(aClass)).append(":\"").append(aClass.getCanonicalName()).append("\"\n");
+		}
+
+		sb.append("\nroot\n");
+		writeTask(sb, task, 1);
+		return sb.toString();
+	}
+
+	private static void writeTask (StringBuilder sb, ModelTask modelTask, int depth) {
+		if (modelTask.hasComment()) {
+			for (int i = 0; i < depth; i++) {
+				sb.append("  ");
+			}
+			sb.append("# ");
+			sb.append(modelTask.getComment());
+			sb.append('\n');
+		}
+		for (int i = 0; i < depth; i++) {
+			sb.append("  ");
+		}
+		Task task = modelTask.getTask();
+		sb.append(toAlias(task.getClass()));
+		getTaskAttributes(sb, task);
+		sb.append('\n');
+		// include may have a whole tree as child, ignore it
+		if (task instanceof Include) return;
+		for (int i = 0; i < modelTask.getChildCount(); i++) {
+			writeTask(sb, modelTask.getChild(i), depth + 1);
 		}
 	}
 

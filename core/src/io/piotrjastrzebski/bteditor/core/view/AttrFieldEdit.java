@@ -39,6 +39,25 @@ class AttrFieldEdit {
 		}
 	};
 
+	protected static Actor stringAreaEditField (final Object object, final Field field, Skin skin) throws ReflectionException {
+		String value = (String)field.get(object);
+		final TextArea ta = new TextArea(value, skin);
+		ta.setPrefRows(3);
+		ta.setMaxLength(80);
+		ta.addListener(new ChangeListener() {
+			@Override public void changed (ChangeEvent event, Actor actor) {
+				String text = ta.getText();
+				try {
+					field.set(object, text);
+				} catch (ReflectionException e) {
+					logger.error("String validator", "Failed to set field " + field + " to " + text, e);
+				}
+			}
+		});
+		addCancelOnESC(ta);
+		return ta;
+	}
+
 	protected static Actor createEditField (final Object object, final Field field, boolean required, Skin skin) throws ReflectionException {
 		Class fType = field.getType();
 		if (fType == float.class) {

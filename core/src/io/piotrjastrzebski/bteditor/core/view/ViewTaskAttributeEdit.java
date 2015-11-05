@@ -33,6 +33,7 @@ public class ViewTaskAttributeEdit extends Table {
 		stopEdit();
 		name.setText(task.getClass().getSimpleName());
 		addTaskAttributes(task.getTask());
+		addComment(task);
 	}
 
 	private void addTaskAttributes (Task task) {
@@ -48,7 +49,7 @@ public class ViewTaskAttributeEdit extends Table {
 			added++;
 		}
 		if (added == 0) {
-			add(new Label("No TaskAttributes", skin));
+			add(new Label("No TaskAttributes", skin)).row();
 		}
 	}
 
@@ -77,6 +78,21 @@ public class ViewTaskAttributeEdit extends Table {
 			}
 		}
 		add(cont).row();
+	}
+
+	private void addComment (ModelTask task) {
+		Table cont = new Table();
+		cont.add(new Label("# Comment", skin)).row();
+		// include is magic, need magic handling
+		try {
+			Field comment = ClassReflection.getDeclaredField(ModelTask.class, "comment");
+			comment.setAccessible(true);
+			cont.add(AttrFieldEdit.stringAreaEditField(task, comment, skin));
+		} catch (ReflectionException e) {
+			e.printStackTrace();
+			cont.add(new Label("<Failed>", skin));
+		}
+		add(cont).expandY().fillY().row();
 	}
 
 	public void stopEdit () {

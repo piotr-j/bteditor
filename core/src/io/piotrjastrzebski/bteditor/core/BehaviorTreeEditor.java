@@ -4,6 +4,7 @@ import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibrary;
 import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibraryManager;
+import com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -72,6 +73,7 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 	private TextButton showGraph;
 	private RelativeFileHandleResolver resolver;
 	private ViewTask<E> selected = null;
+	private EditorBehaviourTreeReader treeReader;
 
 	public BehaviorTreeEditor (Skin skin, Drawable white) {
 		this(skin, white, 1);
@@ -83,6 +85,8 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 		// we need to set custom resolver so we can load includes that are not from cwd
 		resolver = new RelativeFileHandleResolver();
 		BehaviorTreeLibraryManager.getInstance().setLibrary(new BehaviorTreeLibrary(resolver));
+
+		treeReader = new EditorBehaviourTreeReader<>();
 
 		model = new ModelTree<>();
 		trash = new Label("Trash -> [_]", skin);
@@ -131,7 +135,7 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 					logger.error("BTE", "You need to set IPersist before you can save a tree");
 					return;
 				}
-				persist.onSave(BehaviorTreeWriter.serialize(model.getRootNode().getTask()));
+				persist.onSave(BehaviorTreeWriter.serialize(model.getRootNode()));
 			}
 		});
 		topMenu.add(saveBtn);
@@ -142,7 +146,7 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 					logger.error("BTE", "You need to set IPersist before you can save as a tree");
 					return;
 				}
-				persist.onSaveAs(BehaviorTreeWriter.serialize(model.getRootNode().getTask()));
+				persist.onSaveAs(BehaviorTreeWriter.serialize(model.getRootNode()));
 			}
 		});
 		topMenu.add(saveAsBtn);
@@ -165,7 +169,7 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 					return;
 				}
 				if (selected == null) return;
-				persist.onSaveTaskAs(BehaviorTreeWriter.serialize(selected.getModelTask().getTask()));
+				persist.onSaveTaskAs(BehaviorTreeWriter.serialize(selected.getModelTask()));
 			}
 		});
 		topMenu.add(saveSelectedAsBtn);
@@ -234,6 +238,7 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 		model.init(tree);
 		view.init(model);
 		graph.init(model);
+		treeReader.addComments(model.getRootNode());
 	}
 
 	@Override public void selected (ViewTask<E> task) {
@@ -319,6 +324,10 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 
 	public void setTaskInjector (TaskLibrary.Injector<E> injector) {
 		model.getTaskLibrary().setInjector(injector);
+	}
+
+	public BehaviorTreeParser.DefaultBehaviorTreeReader<E> getTreeReader () {
+		return treeReader;
 	}
 
 	private static class TaskNode extends Label {

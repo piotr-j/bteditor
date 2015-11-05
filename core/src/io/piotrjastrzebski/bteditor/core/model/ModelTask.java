@@ -18,6 +18,7 @@ public class ModelTask<E> implements Pool.Poolable {
 	private ModelTree<E> model;
 	private ModelTask<E> parent;
 	private ValidChangeListener<E> changeListener;
+	private String comment;
 
 	public ModelTask (ModelTree<E> model) {
 		this.model = model;
@@ -203,6 +204,18 @@ public class ModelTask<E> implements Pool.Poolable {
 		ModelTask<E> obtain = (ModelTask<E>)model.obtain();
 		obtain.init(task.cloneTask());
 		return obtain;
+	}
+
+	public boolean hasComment () {
+		return comment != null;
+	}
+
+	public String getComment () {
+		return comment;
+	}
+
+	public void setComment (String comment) {
+		this.comment = comment;
 	}
 
 	protected interface ValidChangeListener<E> {

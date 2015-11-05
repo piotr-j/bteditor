@@ -13,6 +13,7 @@ import com.badlogic.gdx.ai.btree.leaf.Failure;
 import com.badlogic.gdx.ai.btree.leaf.Success;
 import com.badlogic.gdx.ai.btree.leaf.Wait;
 import com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser;
+import com.badlogic.gdx.ai.btree.utils.DistributionAdapters;
 import com.badlogic.gdx.ai.utils.random.UniformIntegerDistribution;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
@@ -163,14 +164,12 @@ public class EditorTest extends ApplicationAdapter implements InputProcessor, IP
 		Reader reader = null;
 		try {
 			reader = file.reader();
-			BehaviorTreeParser<Dog> parser = new BehaviorTreeParser<Dog>(BehaviorTreeParser.DEBUG_NONE) {
-				protected BehaviorTree<Dog> createBehaviorTree (Task<Dog> root, Dog object) {
-					if (debug > BehaviorTreeParser.DEBUG_LOW) printTree(root, 0);
-					return new BehaviorTree<>(root, object);
-				}
-			};
-			tree = (BehaviorTree<Dog>)parser.parse(reader, null).cloneTask();
+
+			BehaviorTreeParser<Dog> parser = new BehaviorTreeParser<>(
+				new DistributionAdapters(), BehaviorTreeParser.DEBUG_NONE, editor.getTreeReader());
+			tree = (BehaviorTree<Dog>)parser.parse(reader, null);
 			tree.setObject(new Dog("Dog A"));
+			// TODO add initialize that takes a path, so we can be sure we get correct stuff for comments
 			editor.initialize(tree, file.file().getParent());
 		} catch (SerializationException e) {
 			Gdx.app.error("ET", "Failed to load " + file.file().getAbsolutePath(), e);
