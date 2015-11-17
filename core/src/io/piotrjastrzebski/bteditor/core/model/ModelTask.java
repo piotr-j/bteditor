@@ -203,6 +203,7 @@ public class ModelTask<E> implements Pool.Poolable {
 	public ModelTask<E> createClone () {
 		ModelTask<E> obtain = (ModelTask<E>)model.obtain();
 		obtain.init(task.cloneTask());
+		obtain.setComment(getComment());
 		return obtain;
 	}
 
