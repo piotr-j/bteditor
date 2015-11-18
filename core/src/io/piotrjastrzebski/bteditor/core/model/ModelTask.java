@@ -208,7 +208,7 @@ public class ModelTask<E> implements Pool.Poolable {
 	}
 
 	public boolean hasComment () {
-		return comment != null;
+		return comment != null && comment.trim().length() > 0;
 	}
 
 	public String getComment () {
