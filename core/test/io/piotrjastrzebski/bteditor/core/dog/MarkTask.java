@@ -18,10 +18,11 @@ package io.piotrjastrzebski.bteditor.core.dog;
 
 import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
+import io.piotrjastrzebski.bteditor.core.TaskComment;
 
 /** @author implicit-invocation
  * @author davebaol */
-public class MarkTask extends LeafTask<Dog> {
+public class MarkTask extends LeafTask<Dog> implements TaskComment {
 
 	int i;
 	
@@ -50,4 +51,7 @@ public class MarkTask extends LeafTask<Dog> {
 		return task;
 	}
 
+	@Override public String getComment () {
+		return "Taking a piss!!!\nTaking a piss!!!\nTaking a piss!!!\nTaking a piss!!!";
+	}
 }

@@ -42,7 +42,7 @@ class AttrFieldEdit {
 	protected static Actor stringAreaEditField (final Object object, final Field field, Skin skin) throws ReflectionException {
 		String value = (String)field.get(object);
 		final TextArea ta = new TextArea(value, skin);
-		ta.setPrefRows(3);
+		ta.setPrefRows(3.25f);
 		ta.setMaxLength(80);
 		ta.addListener(new ChangeListener() {
 			@Override public void changed (ChangeEvent event, Actor actor) {

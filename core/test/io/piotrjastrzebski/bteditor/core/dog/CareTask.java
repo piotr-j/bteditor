@@ -19,10 +19,11 @@ package io.piotrjastrzebski.bteditor.core.dog;
 import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.annotation.TaskAttribute;
+import io.piotrjastrzebski.bteditor.core.TaskComment;
 
 /** @author implicit-invocation
  * @author davebaol */
-public class CareTask extends LeafTask<Dog> {
+public class CareTask extends LeafTask<Dog> implements TaskComment {
 
 	@TaskAttribute(required=true)
 	public float urgentProb = 0.8f;
@@ -46,4 +47,7 @@ public class CareTask extends LeafTask<Dog> {
 		return task;
 	}
 
+	@Override public String getComment () {
+		return "Need a piss!!! Need a piss!!! Need a piss!!! Need a piss!!! Need a piss!!! Need a piss!!! ";
+	}
 }

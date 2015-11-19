@@ -3,13 +3,12 @@ package io.piotrjastrzebski.bteditor.core.view;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.annotation.TaskAttribute;
 import com.badlogic.gdx.ai.btree.decorator.Include;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.reflect.Annotation;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
+import io.piotrjastrzebski.bteditor.core.TaskComment;
 import io.piotrjastrzebski.bteditor.core.model.ModelTask;
 
 /**
@@ -20,12 +19,15 @@ public class ViewTaskAttributeEdit extends Table {
 	private Skin skin;
 	private Label top;
 	private Label name;
+	private Label taskComment;
 
 	public ViewTaskAttributeEdit (Skin skin) {
 		super();
 		this.skin = skin;
 		add(top = new Label("Edit task", skin)).row();
 		add(name = new Label("<?>", skin));
+		taskComment = new Label("", skin);
+		taskComment.setWrap(true);
 		row();
 	}
 
@@ -37,6 +39,13 @@ public class ViewTaskAttributeEdit extends Table {
 	}
 
 	private void addTaskAttributes (Task task) {
+		if (task instanceof TaskComment) {
+			String comment = ((TaskComment)task).getComment();
+			if (comment != null && comment.length() > 0) {
+				taskComment.setText(comment);
+				add(taskComment).expandX().fillX().pad(0, 5, 0, 5).row();
+			}
+		}
 		Class<?> aClass = task.getClass();
 		Field[] fields = ClassReflection.getFields(aClass);
 		int added = 0;
