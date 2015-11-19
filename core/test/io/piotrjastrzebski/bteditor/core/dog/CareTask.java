@@ -28,6 +28,9 @@ public class CareTask extends LeafTask<Dog> implements TaskComment {
 	@TaskAttribute(required=true)
 	public float urgentProb = 0.8f;
 
+	@TaskAttribute(required=true)
+	public String name;
+
 	@Override
 	public Status execute () {
 		if (Math.random() < urgentProb) {

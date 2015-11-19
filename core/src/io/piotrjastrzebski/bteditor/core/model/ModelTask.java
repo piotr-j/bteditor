@@ -2,10 +2,16 @@ package io.piotrjastrzebski.bteditor.core.model;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.Task;
+import com.badlogic.gdx.ai.btree.annotation.TaskAttribute;
 import com.badlogic.gdx.ai.btree.decorator.Include;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
+import com.badlogic.gdx.utils.reflect.Annotation;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.badlogic.gdx.utils.reflect.Field;
+import com.badlogic.gdx.utils.reflect.ReflectionException;
 
 /**
  * Created by PiotrJ on 15/10/15.
@@ -81,7 +87,7 @@ public class ModelTask<E> implements Pool.Poolable {
 	private String lastSubtree;
 	public boolean validate () {
 		// check if we have correct amount of children
-		boolean valid = type.isValid(children.size);
+		boolean valid = isTaskValid();
 		// include is magic, need some custom handling
 		if (task instanceof Include) {
 			String subtree = ((Include)task).subtree;
@@ -110,6 +116,43 @@ public class ModelTask<E> implements Pool.Poolable {
 		}
 		setValid(valid);
 		return isValid;
+	}
+
+	private Array<Field> taskFields = new Array<>(8);
+	private boolean allFieldsSet = false;
+	private boolean isTaskValid() {
+		if (!type.isValid(children.size)) return false;
+		// it is impossible to set fields to null in the editor,
+		// so we need to check this until they are all set to something
+		if (allFieldsSet) return true;
+		if (taskFields.size == 0) {
+			// find all field with required attributes
+			Field[] fields = ClassReflection.getFields(task.getClass());
+			for (Field f : fields) {
+				Annotation a = f.getDeclaredAnnotation(TaskAttribute.class);
+				if (a == null)
+					continue;
+				TaskAttribute annotation = a.getAnnotation(TaskAttribute.class);
+				if (annotation.required())
+					taskFields.add(f);
+			}
+		}
+		for (Field field : taskFields) {
+			if (!isFieldValid(task, field))
+				return false;
+		}
+		allFieldsSet = true;
+		return true;
+	}
+
+	private boolean isFieldValid (Task<E> task, Field f) {
+		try {
+			// not valid if field is not set, defaults work for primitives
+			if (f.get(task) != null) return true;
+		} catch (ReflectionException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	public void setValid (boolean newValid) {
@@ -149,6 +192,8 @@ public class ModelTask<E> implements Pool.Poolable {
 			model.free(child);
 		}
 		children.clear();
+		taskFields.clear();
+		allFieldsSet = false;
 		task = null;
 		type = null;
 		isValid = false;
