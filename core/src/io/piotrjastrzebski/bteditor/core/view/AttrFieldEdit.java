@@ -169,6 +169,10 @@ class AttrFieldEdit {
 	protected static Actor stringEditField (final Object object, final Field field, final boolean required, Skin skin) throws ReflectionException {
 		String value = (String)field.get(object);
 		final TextField tf = new TextField(value, skin);
+		if (required) {
+			if (value == null || value.length() == 0)
+				tf.setColor(Color.RED);
+		}
 		tf.addListener(new ChangeListener() {
 			@Override public void changed (ChangeEvent event, Actor actor) {
 				String text = tf.getText();
