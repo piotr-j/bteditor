@@ -6,6 +6,7 @@ import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibrary;
 import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibraryManager;
 import com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -125,6 +126,7 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 		});
 	}
 
+	private boolean graphPosSet;
 	private Table createTopMenu() {
 		Table topMenu = new Table();
 		topMenu.defaults().pad(5);
@@ -203,8 +205,13 @@ public class BehaviorTreeEditor<E> extends Table implements ViewTree.ViewTaskSel
 				if (graphWindow.getStage() == null) {
 					graphWindow.pack();
 					stage.addActor(graphWindow);
-					graphWindow
-						.setPosition(stage.getWidth() / 2 - graphWindow.getWidth() / 2, stage.getHeight() / 2 - graphWindow.getHeight() / 2);
+
+					if (!graphPosSet) {
+						graphPosSet = true;
+						graphWindow.setPosition(
+								stage.getWidth() / 2 - graphWindow.getWidth() / 2,
+								stage.getHeight() / 2 - graphWindow.getHeight() / 2);
+					}
 				} else {
 					stage.addActor(graphWindow);
 				}
